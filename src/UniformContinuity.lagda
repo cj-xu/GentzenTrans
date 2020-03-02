@@ -20,6 +20,7 @@ for each sequence δ.
 
 open import Preliminaries
 open import T
+open import TAuxiliaries
 
 module UniformContinuity where
 
@@ -52,19 +53,6 @@ MoUC-is-extensional {f} {g} {φ} ex mcg {δ} {α} {β} u v em = begin
   g β ≡⟨ sym (ex β) ⟩
   f β ∎
 
-Head : {Γ : Cxt} → T Γ (ιᶥ ⇾ ι)
-Head = Lam (ν₀ · Zero)
-
-Tail : {Γ : Cxt} → T Γ (ιᶥ ⇾ ιᶥ)
-Tail = Lam (Lam (ν₁ · (Suc · ν₀)))
-
-Cons : {Γ : Cxt} → T Γ (ι ⇾ ιᶥ ⇾ ιᶥ)
-Cons = Lam (Lam (Rec · ν₁ · Lam (Lam (ν₂ · ν₁))))
--- λ n u → rec a (λ i _ → u i)
--- i.e.
--- Cons n u  0      = n
--- Cons n u (suc i) = u i
-
 --
 -- If f is uniformly continuous on Δ = {α : ℕᴺ | ∀i(αi ≤ δi)} with a
 -- modulus m, then it has a maximum image Ψ(m,f,δ) on Δ.
@@ -72,8 +60,8 @@ Cons = Lam (Lam (Rec · ν₁ · Lam (Lam (ν₂ · ν₁))))
 Ψ : {Γ : Cxt} → T Γ (ι ⇾ (ιᶥ ⇾ ι) ⇾ ιᶥ ⇾ ι)
 Ψ = Rec · Lam (Lam (ν₁ · ν₀))
 --   rec (λ f   δ  → f δ)
-        · Lam (Lam (Lam (Lam (Φ · Lam (ν₃ · Lam (ν₃ · (Cons · ν₁ · ν₀)) · (Tail · ν₁)) · (Head · ν₀)))))
---       (λ n   g    f    δ → Φ  (λ i → g  (λ α → f       (i ✶ α))        (tail δ))      (head δ))
+        · Lam (Lam (Lam (Lam (Φ · Lam (ν₃ · Lam (ν₃ · (ν₁ ☆ ν₀)) · (Tail · ν₁)) · (Head · ν₀)))))
+--       (λ n   g    f    δ → Φ  (λ i → g  (λ α → f   (i ✶ α))     (tail δ))      (head δ))
 -- i.e.
 -- Ψ  0      f δ = f 0ʷ
 -- Ψ (suc n) f δ = Φ (λ i → Ψ n (λ α → f (i ✶ α)) (tail δ)) (head δ)

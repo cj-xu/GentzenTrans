@@ -18,6 +18,7 @@ verify the correctness via the Fundamental Theorem of Logical Relation.
 
 open import Preliminaries
 open import T
+open import TAuxiliaries
 
 module Continuity where
 

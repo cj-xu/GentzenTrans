@@ -21,6 +21,7 @@ negative translation of classical logic.
 
 open import Preliminaries
 open import T
+open import TAuxiliaries
 
 module GentzenTranslation
        (Jι : Ty)
@@ -75,9 +76,9 @@ Pair ᴶ    = Pair
 Pr1 ᴶ     = Pr1
 Pr2 ᴶ     = Pr2
 Zero ᴶ    = η · Zero
-Suc ᴶ     = κ · Lam (η · (Suc · ν₀))
+Suc ᴶ     = κ · (η ○ Suc)
          -- κ (η ∘ suc)
-Rec{ρ} ᴶ  = Lam (Lam (KE · (Rec · ν₁ · Lam (ν₁ · (η · ν₀)))))
-         -- λ a   f . KE (  rec ( a  ,      f ∘ η ))
+Rec{ρ} ᴶ  = Lam (Lam (KE · (Rec · ν₁ · (ν₀ ○ η))))
+         -- λ a   f . KE (  rec ( a  ,  f ∘ η ))
 
 \end{code}

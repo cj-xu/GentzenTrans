@@ -108,7 +108,7 @@ T-definable {ρ} a = Σ \(t : T ε ρ) → ⟦ t ⟧ ≡ a
 
 \end{code}
 
-■ Some auxiliaries
+■ Variables
 
 \begin{code}
 
@@ -124,40 +124,7 @@ T-definable {ρ} a = Σ \(t : T ε ρ) → ⟦ t ⟧ ≡ a
 ν₃ : {Γ : Cxt} {ρ σ₀ σ₁ σ₂ : Ty} → T (Γ ₊ ρ ₊ σ₀ ₊ σ₁ ₊ σ₂) ρ
 ν₃ = Var (suc (suc (suc zero)))
 
-Max : {Γ : Cxt} → T Γ (ι ⇾ ι ⇾ ι)
-Max = Rec · Lam ν₀ · Lam (Lam (Rec · (Suc · ν₁) · Lam (Lam (Suc · (ν₂ · ν₁)))))
-
-max : ℕ → ℕ → ℕ
-max = ⟦ Max ⟧
-
-Max-spec₀ : (n m : ℕ) → n ≤ max n m
-Max-spec₀  0       m      = ≤zero
-Max-spec₀ (suc n)  0      = ≤refl
-Max-spec₀ (suc n) (suc m) = ≤suc (Max-spec₀ n m)
-
-Max-spec₁ : (n m : ℕ) → m ≤ max n m
-Max-spec₁  0       m      = ≤refl
-Max-spec₁ (suc n)  0      = ≤zero
-Max-spec₁ (suc n) (suc m) = ≤suc (Max-spec₁ n m)
-
-ιᶥ : Ty
-ιᶥ = ι ⇾ ι
-
---
--- Φ g n  is the maximum of g(i) for all i < n.
---
-Φ : {Γ : Cxt} → T Γ (ιᶥ ⇾ ι ⇾ ι)
-Φ = Lam (Rec · (ν₀ · Zero) · Lam (Lam (Max · ν₀ · (ν₂ · (Suc · ν₁)))))
--- i.e.
--- Φ g  0      = g 0
--- Φ g (suc n) = max (Φ g n) (g (suc n))
-
-Φ-spec : {i j : ℕ} → i ≤ j
-       → {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ)
-       → (α : ℕᴺ) → α i ≤ ⟦ Φ ⟧ᵐ γ α j
-Φ-spec {i} {0} ≤zero _ α = ≤refl
-Φ-spec {i} {suc j} r _ α with ≤-cases r
-Φ-spec {i} {suc j} r γ α | inl refl = Max-spec₁ (⟦ Φ ⟧ᵐ γ α j) (α (suc j))
-Φ-spec {i} {suc j} r γ α | inr i≤j  = ≤trans (Φ-spec i≤j γ α) (Max-spec₀ (⟦ Φ ⟧ᵐ γ α j) (α (suc j)))
+ν₄ : {Γ : Cxt} {ρ σ₀ σ₁ σ₂ σ₃ : Ty} → T (Γ ₊ ρ ₊ σ₀ ₊ σ₁ ₊ σ₂ ₊ σ₃) ρ
+ν₄ = Var (suc (suc (suc (suc zero))))
 
 \end{code}

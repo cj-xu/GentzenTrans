@@ -12,12 +12,20 @@
 We construct majorants of T-terms via the monadic translation whose
 correctness is guaranteed by the Fundamental Theorem of Logical Relation.
 
+References
+
+□ W. A. Howard.  Hereditarily majorizable functionals of finite type.
+  In Metamathematical investigation of intuitionistic Arithmetic and
+  Analysis, volume 344 of Lecture Notes in Mathematics, pages
+  454–461. Springer, Berlin, 1973.
+
 \begin{code}
 
 {-# OPTIONS --without-K --safe #-}
 
 open import Preliminaries
 open import T
+open import TAuxiliaries
 
 module Majorizability where
 

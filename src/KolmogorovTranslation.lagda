@@ -7,14 +7,12 @@
 
     Chuangjie Xu, July 2019
 
-
 References.
 
 □ Tarmo Uustalu.  Monad translating inductive and coinductive types.
   In: H. Geuvers, F. Wiedijk (Eds.), Types for Proofs and Programs
   (TYPES 2002). Lecture Notes in Computer Science, vol 2646, Springer,
   2002, pp. 299–315.
-
 
 \begin{code}
 
@@ -42,14 +40,14 @@ module KolmogorovTranslation
 ⟨ zero ⟩ᵛ  = zero
 ⟨ suc i ⟩ᵛ = suc ⟨ i ⟩ᵛ
 
-◇Ap : {Γ : Cxt} {σ τ : Ty} → T Γ (J (σ ⇾ J τ) ⇾ σ ⇾ J τ)
-◇Ap = Lam (Lam (κ · Lam (ν₀ · ν₁) · ν₁))
-
 infixl 20 _◇_
 
 _◇_ : {Γ : Cxt} {σ τ : Ty} → T Γ (J (σ ⇾ J τ)) → T Γ σ → T Γ (J τ)
 f ◇ a = ◇Ap · f · a
      -- κ (λ h → h a) f
+ where
+  ◇Ap : {Γ : Cxt} {σ τ : Ty} → T Γ (J (σ ⇾ J τ) ⇾ σ ⇾ J τ)
+  ◇Ap = Lam (Lam (κ · Lam (ν₀ · ν₁) · ν₁))
 
 Rec◇ : {Γ : Cxt} {ρ : Ty} → T Γ (ρ ⇾ (J ι ⇾ J (J ρ ⇾ J ρ)) ⇾ ι ⇾ J ρ)
 Rec◇ = Lam (Lam (Rec · (η · ν₁) · Lam (Lam (ν₂ · (η · ν₁) ◇ ν₀))))

@@ -45,6 +45,7 @@ we work with the lambda-calculus version of System T.
 \begin{code}
 
 import T
+import TAuxiliaries
 
 \end{code}
 
@@ -72,7 +73,7 @@ import LogicalRelation
 
 ■ Example I: majorizability
 
-For any term t in T, the translation of t majorizes t.
+The translation of any term t of T majorizes t itself.
 
 \begin{code}
 
@@ -88,7 +89,7 @@ of functions of type X → ℕ.
 
 \begin{code}
 
--- import Lifting
+import Lifting
 
 \end{code}
 
@@ -118,11 +119,13 @@ import UniformContinuity
 ■ Example V: bar recursion
 
 Given Y : ℕᴺ → ℕ in T, we obtain a general-bar-recursion functional
-form the translation of Y. We refer to the following Agda development
-for the details:
+form the translation of Y.
 
-  https://cj-xu.github.io/agda/BRCT/BRCT.html
+\begin{code}
 
+import BarRecursion
+
+\end{code}
 
 ■ Other monadic translations
 
