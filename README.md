@@ -1,4 +1,4 @@
-# GentzenTrans
+# A Gentzen-style monadic translation of Gödel’s System T
 We introduce a syntactic translation of Gödel’s System T parametrized
 by a weak notion of a monad, and prove a corresponding fundamental
 theorem of logical relation. Our translation structurally corresponds
