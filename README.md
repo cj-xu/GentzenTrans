@@ -7,6 +7,8 @@ the monad and the base case of the logical relation, we reveal various
 properties and structures of T-definable functionals such as
 majorizability, continuity and bar recursion.
 
+An [html rendering of the Agda code](http://cj-xu.github.io/agda/GentzenTrans/index.html) is available at Chuangjie Xu's GitHub web page.
+
 ## Authors
 - [Chuangjie Xu](http://cj-xu.github.io/)
 
