@@ -29,6 +29,11 @@ This Agda development is organized as follow:
 
 5. Other monadic translations of System T
 
+
+The source files are available at
+
+    https://github.com/cj-xu/GentzenTrans
+
 All the files are tested in the safe mode of Agda version 2.6.1.
 
 

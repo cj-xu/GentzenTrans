@@ -132,9 +132,11 @@ open import GentzenTranslation Jι η κ
 
 \begin{code}
 
-V M : (ℕᴺ → ℕ) × (ℕᴺ → ℕ) → ℕᴺ → ℕ
-V = pr₁  -- value component
-M = pr₂  -- modulus component
+private
+
+ V M : (ℕᴺ → ℕ) × (ℕᴺ → ℕ) → ℕᴺ → ℕ
+ V = pr₁  -- value component
+ M = pr₂  -- modulus component
 
 --
 -- Base case of the logical relation
@@ -232,4 +234,10 @@ Thm[UC] t = MoUC-is-extensional claim₀ claim₁
   claim₁ : M ⟦ t ᴶ · Ω ⟧ is-a-modulus-of-uniform-continuity-of V ⟦ t ᴶ · Ω ⟧
   claim₁ {δ} = pr₂ (Cor[R] t δ (λ {n} {w} → RΩ δ {n} {w}))
 
+
+Mᵘᶜ : T ε (ιᶥ ⇾ ι)
+    → ℕᴺ → ℕ
+Mᵘᶜ t = M ⟦ t ᴶ · Ω ⟧
+
 \end{code}
+

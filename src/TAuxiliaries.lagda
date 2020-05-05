@@ -138,6 +138,20 @@ Min-spec₁  0       m      = ≤zero
 Min-spec₁ (suc n)  0      = ≤zero
 Min-spec₁ (suc n) (suc m) = ≤suc (Min-spec₁ n m)
 
+Min-nonzero : (n m : ℕ) → ¬ (min n m ≡ 0) → ¬ (n ≡ 0) × ¬ (m ≡ 0)
+Min-nonzero  0       m      f = 𝟘-elim (f refl)
+Min-nonzero (suc n)  0      f = 𝟘-elim (f refl)
+Min-nonzero (suc n) (suc m) f = (λ ()) , (λ ())
+
+Min-nonzero' : (n m : ℕ) → ¬ (n ≡ 0) → ¬ (m ≡ 0) → ¬ (min n m ≡ 0)
+Min-nonzero'  0       m      f g = λ _ → f refl
+Min-nonzero' (suc n)  0      f g = λ _ → g refl
+Min-nonzero' (suc n) (suc m) f g = λ ()
+
+Min-zero-cases : (n m : ℕ) → min n m ≡ 0 → ¬ (n ≡ 0) → m ≡ 0
+Min-zero-cases n  0      e f = refl
+Min-zero-cases 0 (suc m) e f = 𝟘-elim (f refl)
+
 \end{code}
 
 ■ The largest value of an initial fragment of an infinite sequence
@@ -157,9 +171,9 @@ Min-spec₁ (suc n) (suc m) = ≤suc (Min-spec₁ n m)
        → {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ)
        → (α : ℕᴺ) → α i ≤ ⟦ Φ ⟧ᵐ γ α j
 Φ-spec {i} {0} ≤zero _ α = ≤refl
-Φ-spec {i} {suc j} r _ α with ≤-cases r
-Φ-spec {i} {suc j} r γ α | inl refl = Max-spec₁ (⟦ Φ ⟧ᵐ γ α j) (α (suc j))
-Φ-spec {i} {suc j} r γ α | inr i≤j  = ≤trans (Φ-spec i≤j γ α) (Max-spec₀ (⟦ Φ ⟧ᵐ γ α j) (α (suc j)))
+Φ-spec {i} {suc j} r γ α with ≤-cases r
+... | inl  refl      = Max-spec₁ (⟦ Φ ⟧ᵐ γ α j) (α (suc j))
+... | inr (≤suc i≤j) = ≤trans (Φ-spec i≤j γ α) (Max-spec₀ (⟦ Φ ⟧ᵐ γ α j) (α (suc j)))
 
 \end{code}
 
@@ -178,23 +192,28 @@ Lt : {Γ : Cxt} → T Γ (ι ⇾ ι ⇾ ι)
 Lt = Rec · (Rec · 𝟎 · Lam (Lam 𝟏))
          · Lam (Lam (Rec · 𝟎 · Lam (Lam (ν₂ · ν₁))))
 
-Lt-spec₀ : {n m : ℕ} → n < m → ⟦ Lt ⟧ n m ≡ 1
-Lt-spec₀ {0}     {suc m} (≤suc r) = refl
-Lt-spec₀ {suc n} {suc m} (≤suc r) = Lt-spec₀ r
+lt : ℕ → ℕ → ℕ
+lt = ⟦ Lt ⟧
 
-Lt-spec₀' : {n m : ℕ} → ⟦ Lt ⟧ n m ≡ 1 → n < m
-Lt-spec₀' {0}     {suc m} _ = ≤suc ≤zero
-Lt-spec₀' {suc n} {suc m} e = ≤suc (Lt-spec₀' e)
+<→Lt : {n m : ℕ} → n < m → ¬ (lt n m ≡ 0)
+<→Lt {0}     {suc m} (≤suc r) = λ ()
+<→Lt {suc n} {suc m} (≤suc r) = <→Lt r
 
-Lt-spec₁ : {n m : ℕ} → m ≤ n → ⟦ Lt ⟧ n m ≡ 0
-Lt-spec₁ {0}     {0}      ≤zero   = refl
-Lt-spec₁ {suc n} {0}      ≤zero   = refl
-Lt-spec₁ {suc n} {suc m} (≤suc r) = Lt-spec₁ r
+Lt→< : {n m : ℕ} → ¬ (lt n m ≡ 0) → n < m
+Lt→< {0}     {0}     f = 𝟘-elim (f refl)
+Lt→< {0}     {suc m} f = ≤suc ≤zero
+Lt→< {suc n} {0}     f = 𝟘-elim (f refl)
+Lt→< {suc n} {suc m} f = ≤suc (Lt→< f)
 
-Lt-spec₁' : {n m : ℕ} → ⟦ Lt ⟧ n m ≡ 0 → m ≤ n
-Lt-spec₁' {0}     {0}     _ = ≤zero
-Lt-spec₁' {suc n} {0}     _ = ≤zero
-Lt-spec₁' {suc n} {suc m} e = ≤suc (Lt-spec₁' e)
+≤→Lt : {n m : ℕ} → m ≤ n → lt n m ≡ 0
+≤→Lt {0}     {0}      ≤zero   = refl
+≤→Lt {suc n} {0}      ≤zero   = refl
+≤→Lt {suc n} {suc m} (≤suc r) = ≤→Lt r
+
+Lt→≤ : {n m : ℕ} → lt n m ≡ 0 → m ≤ n
+Lt→≤ {0}     {0}     _ = ≤zero
+Lt→≤ {suc n} {0}     _ = ≤zero
+Lt→≤ {suc n} {suc m} e = ≤suc (Lt→≤ e)
 
 \end{code}
 
@@ -206,13 +225,24 @@ If : {Γ : Cxt} {τ : Ty}
    → T Γ (ι ⇾ τ ⇾ τ ⇾ τ)
 If = Rec · Lam (Lam ν₀) · Lam (Lam (Lam (Lam ν₁)))
 
-If-spec₀ : {τ : Ty} {a b : ⟦ τ ⟧ʸ}
-         → ⟦ If ⟧ 0 a b ≡ b
-If-spec₀ = refl
+If-spec₀ : {τ : Ty} {a b : ⟦ τ ⟧ʸ} {n : ℕ}
+        → n ≡ 0
+        → ⟦ If ⟧ n a b ≡ b
+If-spec₀ refl = refl
 
 If-spec₁ : {τ : Ty} {a b : ⟦ τ ⟧ʸ} {n : ℕ}
-         → ⟦ If ⟧ (suc n) a b ≡ a
-If-spec₁ = refl
+        → ¬ (n ≡ 0)
+        → ⟦ If ⟧ n a b ≡ a
+If-spec₁ {_} {a} {b} {n} n≢0 = goal
+ where
+  m : ℕ
+  m = pr₁ (not-zero-is-suc n≢0)
+  m+1≡n : suc m ≡ n
+  m+1≡n = pr₂ (not-zero-is-suc n≢0)
+  fact : ⟦ If ⟧ (suc m) a b ≡ a
+  fact = refl
+  goal : ⟦ If ⟧ n a b ≡ a
+  goal = transport (λ x → ⟦ If ⟧ x a b ≡ a) m+1≡n fact
 
 \end{code}
 
@@ -228,5 +258,20 @@ Plus Minus : {Γ : Cxt} → T Γ (ι ⇾ ι ⇾ ι)
 Plus  = Rec · Lam ν₀   · Lam (Lam (Lam (Suc · (ν₁ · ν₀))))
 Minus = Rec · Lam Zero · Lam (Lam (Rec · (Suc · ν₁) · Lam (Lam (ν₂ · ν₁))))
 
-\end{code}
+_-_ : ℕ → ℕ → ℕ
+_-_ = ⟦ Minus ⟧
 
+Lm[n+1-n≡1] : (n : ℕ) → suc n - n ≡ 1
+Lm[n+1-n≡1]  0      = refl
+Lm[n+1-n≡1] (suc n) = Lm[n+1-n≡1] n
+
+Lm[n<m→k+1=m-n] : {n m : ℕ} → n < m → Σ \k → suc k ≡ m - n
+Lm[n<m→k+1=m-n] {0}     {suc m}  _       = m , refl
+Lm[n<m→k+1=m-n] {suc n} {suc m} (≤suc r) = Lm[n<m→k+1=m-n] r
+
+Lm[k+1=n+1-m→k=n-m] : (n : ℕ) {m k : ℕ} → suc k ≡ suc n - m → k ≡ n - m
+Lm[k+1=n+1-m→k=n-m]  0      {0}     refl = refl
+Lm[k+1=n+1-m→k=n-m] (suc n) {0}     refl = refl
+Lm[k+1=n+1-m→k=n-m] (suc n) {suc m} e    = Lm[k+1=n+1-m→k=n-m] n e
+
+\end{code}

@@ -110,6 +110,9 @@ data 𝟘 : Set where
 𝟘-elim : {A : Set} → 𝟘 → A
 𝟘-elim ()
 
+¬ : Set → Set
+¬ A = A → 𝟘
+
 --
 -- the unit type
 --
@@ -136,6 +139,10 @@ ind : ∀ {ℓ} {P : ℕ → Set ℓ} → P 0 → (∀ n → P n → P (suc n)) 
 ind p f  0      = p
 ind p f (suc n) = f n (ind p f n)
 
+not-zero-is-suc : {n : ℕ} → ¬ (n ≡ 0) → Σ \m → suc m ≡ n
+not-zero-is-suc {0}     f = 𝟘-elim (f refl)
+not-zero-is-suc {suc n} f = n , refl
+
 infix 5 _≤_ _<_ _≥_ _>_
 
 data _≤_ : ℕ → ℕ → Set where
@@ -158,12 +165,16 @@ n > m = m < n
 ≤trans  ≤zero    _       = ≤zero
 ≤trans (≤suc r) (≤suc s) = ≤suc (≤trans r s)
 
-≤-cases : {n m : ℕ} → n ≤ suc m → (n ≡ suc m) + (n ≤ m)
-≤-cases {0}     {m}      ≤zero   = inr ≤zero
-≤-cases {1}     {0}     (≤suc r) = inl refl
+≤-cases : {n m : ℕ} → n ≤ m → (n ≡ m) + (n < m)
+≤-cases {0}     {0}      ≤zero   = inl refl
+≤-cases {0}     {suc m}  ≤zero   = inr (≤suc ≤zero)
 ≤-cases {suc n} {suc m} (≤suc r) with ≤-cases r
-≤-cases {suc n} {suc m} (≤suc r) | inl e = inl (ap suc e)
-≤-cases {suc n} {suc m} (≤suc r) | inr s = inr (≤suc s)
+... | inl refl = inl refl
+... | inr s    = inr (≤suc s)
+
+≤suc' : {n m : ℕ} → n ≤ m → n ≤ suc m
+≤suc'  ≤zero   = ≤zero
+≤suc' (≤suc r) = ≤suc (≤suc' r)
 
 \end{code}
 
