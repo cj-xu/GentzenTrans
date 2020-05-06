@@ -104,7 +104,7 @@ len✦-suc {α , suc l} {n} = refl
 
 infix 2 _∈_ _∉_
 --
--- decidable predicates as ℕ-value functions
+-- decidable predicates as ℕ-valued functions
 --
 _∉_ _∈_ : {A : Set} → A → (A → ℕ) → Set
 a ∈ Q = ¬ (Q a ≡ 0)
@@ -231,8 +231,8 @@ open import GentzenTranslation Jι η κ public
       → (k : ℕ) → gBR (λ s → lt k (len s)) (⟦ Ψ ⟧ k)
 -- i.e. for any G H s
 --
---   |s| < k  →  Ψ k G H s ≡ G s
---   |s| ≮ k  →  Ψ k G H s ≡ H s (λ m → Ψ k G H (s ✦ m)
+--   k < |s|  →  Ψ k G H s ≡ G s
+--   k ≮ |s|  →  Ψ k G H s ≡ H s (λ m → Ψ k G H (s ✦ m)
 --
 -- The proof is given in the appendix.
 
@@ -408,8 +408,8 @@ SBF t = ⟦ Φ · t · B (t ᴶ · Ω) ⟧
 --
 -- i.e. for any G H s
 --
---   |s| < k  →  Ψ k G H s ≡ G s
---   |s| ≮ k  →  Ψ k G H s ≡ H s (λ m → Ψ k G H (s ✦ m)
+--   k < |s|  →  Ψ k G H s ≡ G s
+--   k ≮ |s|  →  Ψ k G H s ≡ H s (λ m → Ψ k G H (s ✦ m)
 --
 Ψ-gBR funExt k G H s = base , step
  where
