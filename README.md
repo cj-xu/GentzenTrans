@@ -1,16 +1,13 @@
-# A Gentzen-style monadic translation of Gödel’s System T
-We introduce a syntactic translation of Gödel’s System T parametrized
-by a weak notion of a monad, and prove a corresponding fundamental
-theorem of logical relation. Our translation structurally corresponds
-to Gentzen’s negative translation of classical logic. By instantiating
-the monad and the base case of the logical relation, we reveal various
-properties and structures of T-definable functionals such as
-majorizability, continuity and bar recursion.
+# Gentzen-style monadic translation of Gödel's System T
 
-An [html rendering of the Agda code](http://cj-xu.github.io/agda/GentzenTrans/index.html) is available at Chuangjie Xu's GitHub web page.
+The Gentzen-style monadic translation of Gödel's System T is parametrized by a nucleus. A fundamental theorem of logical relations provides a uniform correctness argument for its instances, which yield majorants, moduli of continuity, general-bar-recursion functionals, and internal dialogue trees.
 
-## Authors
-- [Chuangjie Xu](http://cj-xu.github.io/)
+This repository began with the Agda development for [A Gentzen-Style Monadic Translation of Gödel's System T](https://doi.org/10.4230/LIPIcs.FSCD.2020.25) (FSCD 2020) and also contains later work. The [FSCD 2020 index](src/index.lagda) and its [HTML rendering](https://cj-xu.github.io/agda/GentzenTrans/index.html) cover the original development.
 
-## Tested with
-- Agda version 2.6.1
+## Author
+
+[Chuangjie Xu](http://cj-xu.github.io/)
+
+## Agda version
+
+Developed with Agda 2.8.0.
