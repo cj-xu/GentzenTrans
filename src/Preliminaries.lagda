@@ -1,9 +1,9 @@
 
- ======================
- =                    =
- =  §0  Mini library  =
- =                    =
- ======================
+ ==================
+ =                =
+ =  Mini library  =
+ =                =
+ ==================
 
     Chuangjie Xu
 
@@ -60,6 +60,9 @@ _ ≡⟨ x≡y ⟩ y≡z = trans x≡y y≡z
 
 _∎ : ∀ {ℓ} {A : Set ℓ} (x : A) → x ≡ x
 _∎ _ = refl
+
+FunExt : Set₁
+FunExt = {A B : Set} {f g : A → B} → (∀ x → f x ≡ g x) → f ≡ g
 
 \end{code}
 

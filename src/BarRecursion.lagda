@@ -1,9 +1,9 @@
 
- =========================
- =                       =
- =  §3.4  Bar recursion  =
- =                       =
- =========================
+ ===========================
+ =                         =
+ =  General Bar Recursion  =
+ =                         =
+ ===========================
 
     Chuangjie Xu, February 2020
 
@@ -48,12 +48,6 @@ We will need function extensionality in the proofs of
 
  2. κ preserves the logical relation.
 
-\begin{code}
-
-FunExt : Set₁
-FunExt = {A B : Set} {f g : A → B} → (∀ x → f x ≡ g x) → f ≡ g
-
-\end{code}
 
 ■ Preliminaries
 

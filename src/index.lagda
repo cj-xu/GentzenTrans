@@ -7,6 +7,16 @@
 
                    Updated in February 2020
 
+This index documents the Agda development accompanying
+
+    A Gentzen-Style Monadic Translation of Gödel's System T
+
+(FSCD 2020, DOI: 10.4230/LIPIcs.FSCD.2020.25).
+
+The repository contains later developments that are not covered by the index.
+
+
+Abstract.
 
 We introduce a syntactic translation of Gödel’s System T parametrized
 by a weak notion of a monad, and prove a corresponding fundamental
@@ -16,25 +26,11 @@ the monad and the base case of the logical relation, we reveal various
 properties and structures of T-definable functionals such as
 majorizability, continuity and bar recursion.
 
-
-This Agda development is organized as follow:
-
-1. Gödel's system T (extended with products)
-
-2. A Gentzen-style monadic translation of System T
-
-3. Fundamental theorem of logical relation
-
-4. Examples of nuclei and their applications
-
-5. Other monadic translations of System T
-
-
 The source files are available at
 
     https://github.com/cj-xu/GentzenTrans
 
-All the files are tested in the safe mode of Agda version 2.6.1.
+All the files are tested in the safe mode of Agda version 2.8.0.
 
 
 \begin{code}
@@ -43,9 +39,9 @@ All the files are tested in the safe mode of Agda version 2.6.1.
 
 \end{code}
 
-■ Gödel's system T
+■ Gödel's System T
 
-we work with the lambda-calculus version of System T.
+We work with the lambda-calculus version of System T.
 
 \begin{code}
 
@@ -121,7 +117,7 @@ import UniformContinuity
 
 \end{code}
 
-■ Example V: bar recursion
+■ Example V: general bar recursion
 
 Given Y : ℕᴺ → ℕ in T, we obtain a general-bar-recursion functional
 form the translation of Y.

@@ -1,4 +1,10 @@
-Chuangjie Xu 2026
+===============================================
+ =                                             =
+ =  Application: Church-Encoded Dialogue Tree  =
+ =                                             =
+ ===============================================
+
+    Chuangjie Xu 2026
 
 This module studies Church-encoded dialogue trees in Gödel's
 System T. The main goal is to extract, from a closed term of
@@ -14,14 +20,14 @@ other things, that the dialogue tree associated to a System T
 term is itself definable in System T via a Church encoding of
 trees.
 
-Our treatment here is more modest and more direct. We use a
-logical relation between the standard interpretation of
-System T and its Church-encoded dialogue-tree interpretation,
-together with an explicit representation relation between
-Church values and inductive dialogue trees. This is enough to
-prove that the extracted Church-encoded dialogue tree
-computes the same type-2 functional as the original System T
-term.
+Our construction uses a direct logical relation between the
+standard interpretation of System T and its Church-encoded
+dialogue-tree interpretation. This proves that the extracted
+System T term computes the same type-2 functional as the
+original term. We also recall inductive dialogue trees to
+verify that the internal evaluator agrees with their usual
+evaluation on Church encodings; the extraction theorem itself
+does not depend on these inductive trees.
 
 \begin{code}
 
@@ -34,7 +40,7 @@ open import T
 
 \end{code}
 
-Inductively defined dialogue trees in Agda
+■ Inductively defined dialogue trees in Agda
 
 We begin with the ordinary inductive type of dialogue trees. A
 tree is either a leaf `η n`, which immediately returns `n`, or
@@ -51,20 +57,15 @@ eval : D → ℕᴺ → ℕ
 eval (η n) _ = n
 eval (β g i) α = eval (g (α i)) α
 
-κ : (ℕ → D) → D → D
-κ f (η n) = f n
-κ f (β g i) = β (λ n → κ f (g n)) i
-
-Ω : D → D
-Ω = κ (β η)
-
 \end{code}
 
-Church encodings of dialogue trees in System T
+■ Church encodings of dialogue trees in System T
 
 We next define the corresponding Church encoding in System T.
-The terms `ηᵀ`, `βᵀ`, `κᵀ`, and `Ωᵀ` are the encoded
-counterparts of the operations on the inductive trees above.
+The terms `ηᵀ` and `βᵀ` encode leaves and queries.
+The operation `κᵀ` supplies Kleisli extension for the
+translation, and `Ωᵀ` is the generic element used to extract
+a dialogue tree.
 
 \begin{code}
 
@@ -107,7 +108,7 @@ Dᵀ₂ = Dᵀ typeᵀ-2
 
 \end{code}
 
-Evaluation of Church-encoded dialogue trees
+■ Evaluation of Church-encoded dialogue trees
 
 To evaluate a Church-encoded dialogue tree, we instantiate it
 with the same leaf and branching algebra used by the inductive
@@ -148,7 +149,7 @@ evalᵀ = Lam (ν₀ · leafᵀ · branchᵀ)
 
 \end{code}
 
-Representable Church values
+■ Representable Church values
 
 The semantic type `⟦ Dᵀ₂ ⟧ʸ` is a higher-order function space,
 so its elements need not satisfy the fold laws of genuine
@@ -174,8 +175,10 @@ d represents t = ∀ (e : ℕ → type-2) (α : ℕᴺ) → t e branch α ≡ ru
 \end{code}
 
 The first lemma shows that `run` agrees with the ordinary
-evaluator when the leaf algebra is `leaf`. From this we obtain
-the correctness of `evalᵀ` on represented Church values.
+evaluator when the leaf algebra is `leaf`. It follows that
+`evalᵀ` evaluates a represented Church value just as the
+inductive evaluator evaluates its representing tree. This
+checks the encoding independently of the extraction proof.
 
 \begin{code}
 
@@ -190,60 +193,18 @@ evalᵀ-correct _ d _ r α = trans (r leaf α) (run-eval d α)
 
 \end{code}
 
-Compatibility with `κ`
+■ Direct logical relation
 
-To prove preservation under `κᵀ`, we use two auxiliary facts.
-The lemma `run-ext` says that changing the leaf algebra
-pointwise does not change the result of `run`. The lemma
-`run-κ` states that the inductive operation `κ` is interpreted
-by composing `run` with the continuation. Using these, we show
-that representation is preserved by `κᵀ`.
+We now instantiate the Gentzen-style translation with the
+Church type `Dᵀ₂`. For a closed term `t` of type 2, its
+translation applied to the generic element `Ωᵀ` gives the
+Church-encoded dialogue tree `dialogue-treeᵀ t`.
 
-\begin{code}
-
-run-ext : (t : D) {e₀ e₁ : ℕ → type-2}
-        → (∀ n α → e₀ n α ≡ e₁ n α)
-        → ∀ α → run t e₀ α ≡ run t e₁ α
-run-ext (η n) ξ α = ξ n α
-run-ext (β g i) ξ α = run-ext (g (α i)) ξ α
-
-run-κ : (h : ℕ → D) (t : D) (e : ℕ → type-2) (α : ℕᴺ)
-      → run (κ h t) e α ≡ run t (λ n → run (h n) e) α
-run-κ h (η n) e α = refl
-run-κ h (β g i) e α = run-κ h (g (α i)) e α
-
-κᵀ-preserves-representation : {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ)
-                            → (g : ℕ → D) (h : ℕ → ⟦ Dᵀ₂ ⟧ʸ)
-                            → (∀ i → g i represents (h i))
-                            → (d : D) (t : ⟦ Dᵀ₂ ⟧ʸ)
-                            → d represents t
-                            → κ g d represents ⟦ κᵀ ⟧ᵐ γ h t
-κᵀ-preserves-representation _ g h ζ d t r e α = goal
- where
-  claim₀ : t (λ n → h n e branch) branch α ≡ run d (λ n → h n e branch) α
-  claim₀ = r (λ n → h n e branch) α
-  claim₁ : run d (λ n → h n e branch) α ≡ run d (λ n → run (g n) e) α
-  claim₁ = run-ext d (λ n β → ζ n e β) α
-  claim₂ : run d (λ n → run (g n) e) α ≡ run (κ g d) e α
-  claim₂ = sym (run-κ g d e α)
-  goal : t (λ n → h n e branch) branch α ≡ run (κ g d) e α
-  goal = trans claim₀ (trans claim₁ claim₂)
-
-\end{code}
-
-Logical relation
-
-We now instantiate the generic Gentzen translation with the
-Church encoding `Dᵀ₂`. The Church-encoded dialogue tree
-`dialogue-treeᵀ t` is obtained from `t` by applying its
-translation to `Ωᵀ`.
-
-The base relation `Rι` says that a Church value is related to a
-natural number when it is represented by some inductive
-dialogue tree that evaluates to that number at the oracle `α`.
-The clauses `Rη`, `Rκ`, and `RΩ` verify that the nucleus
-preserves this relation, so the generic logical-relation
-machinery applies.
+The base relation `Rι` compares the result `n` of a term on
+an oracle `α` with a Church value `t`. It requires `t` to
+return `e n α` for every leaf algebra `e`. Quantifying over
+these algebras makes the relation stable under `κᵀ` directly;
+no inductive-tree witness is needed for the fundamental theorem.
 
 \begin{code}
 
@@ -252,81 +213,59 @@ open import GentzenTranslation Dᵀ₂ ηᵀ κᵀ
 dialogue-treeᵀ : T ε ((ι ⇾ ι) ⇾ ι) → T ε Dᵀ₂
 dialogue-treeᵀ t = t ᴶ · Ωᵀ
 
-Rι : ℕᴺ → ⟦ ι ⟧ʸ → ⟦ Dᵀ₂ ⟧ʸ → Set
-Rι α n t = Σ \(d : D) → (d represents t) × (n ≡ eval d α)
+Rι : ℕᴺ → ℕ → ⟦ Dᵀ₂ ⟧ʸ → Set
+Rι α n t = (e : ℕ → type-2) → t e branch α ≡ e n α
 
 Rη : (α : ℕᴺ)
-   → {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ) (n : ⟦ ι ⟧ʸ) → Rι α n (⟦ ηᵀ ⟧ᵐ γ n)
-Rη _ _ n = η n , (λ _ _ → refl) , refl
-
-eval-κ : (h : ℕ → D) (t : D) (α : ℕᴺ)
-       → eval (κ h t) α ≡ eval (h (eval t α)) α
-eval-κ h (η n) α = refl
-eval-κ h (β g i) α = eval-κ h (g (α i)) α
+   → {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ) (n : ℕ)
+   → Rι α n (⟦ ηᵀ ⟧ᵐ γ n)
+Rη α γ n e = refl
 
 Rκ : (α : ℕᴺ)
    → {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ)
-   → {f : ⟦ ι ⇾ ι ⟧ʸ} {g : ⟦ ι ⇾ Dᵀ₂ ⟧ʸ} → (∀ i → Rι α (f i) (g i))
-   → ∀ {n : ⟦ ι ⟧ʸ} {t : ⟦ Dᵀ₂ ⟧ʸ} → Rι α n t
+   → {f : ℕ → ℕ} {g : ℕ → ⟦ Dᵀ₂ ⟧ʸ}
+   → (∀ i → Rι α (f i) (g i))
+   → ∀ {n : ℕ} {t : ⟦ Dᵀ₂ ⟧ʸ}
+   → Rι α n t
    → Rι α (f n) (⟦ κᵀ ⟧ᵐ γ g t)
-Rκ α γ {f} {g} ζ {n} {t} (d , r , refl) = κ h d , rep , value
- where
-  h : ℕ → D
-  h i = pr₁ (ζ i)
-  ζ' : ∀ i → (h i) represents (g i)
-  ζ' i = pr₁ (pr₂ (ζ i))
-  rep : κ h d represents ⟦ κᵀ ⟧ᵐ γ g t
-  rep = κᵀ-preserves-representation γ h g ζ' d t r
-  base : f (eval d α) ≡ eval (h (eval d α)) α
-  base = pr₂ (pr₂ (ζ (eval d α)))
-  step : eval (κ h d) α ≡ eval (h (eval d α)) α
-  step = eval-κ h d α
-  value : f (eval d α) ≡ eval (κ h d) α
-  value = trans base (sym step)
+Rκ α γ {f} {g} ζ {n} {t} r e =
+  trans (r (λ i → g i e branch)) (ζ n e)
 
 RΩ : (α : ℕᴺ)
-   → ∀ {n t} → Rι α n t → Rι α (α n) (⟦ Ωᵀ ⟧ t)
-RΩ α {n} {t} (d , r , refl) = Ω d , rep , value
- where
-  rep : (Ω d) represents (⟦ Ωᵀ ⟧ t)
-  rep = κᵀ-preserves-representation ⋆ (β η) ⟦ βᵀ · ηᵀ ⟧ (λ _ _ _ → refl) d t r
-  value : α (eval d α) ≡ eval (Ω d) α
-  value = sym (eval-κ (β η) d α)
+   → ∀ {n t} → Rι α n t
+   → Rι α (α n) (⟦ Ωᵀ ⟧ t)
+RΩ α {n} {t} r e = r (λ i → branch (λ j → e j) i)
 
 R : ℕᴺ → {ρ : Ty} → ⟦ ρ ⟧ʸ → ⟦ ⟨ ρ ⟩ᴶ ⟧ʸ → Set
 R α = LR._R_
  where
-  import LogicalRelation Dᵀ₂ ηᵀ κᵀ (Rι α) (Rη α) (Rκ α) as LR
+  import LogicalRelation Dᵀ₂ ηᵀ κᵀ
+    (Rι α) (Rη α) (Rκ α) as LR
 
-Cor[R] : {ρ : Ty} (t : T ε ρ) (α : ℕᴺ) → R α ⟦ t ⟧ ⟦ t ᴶ ⟧
+Cor[R] : {ρ : Ty} (t : T ε ρ) (α : ℕᴺ)
+       → R α ⟦ t ⟧ ⟦ t ᴶ ⟧
 Cor[R] t α = LR.FTLR t ⋆
  where
-  import LogicalRelation Dᵀ₂ ηᵀ κᵀ (Rι α) (Rη α) (Rκ α) as LR
+  import LogicalRelation Dᵀ₂ ηᵀ κᵀ
+    (Rι α) (Rη α) (Rκ α) as LR
 
 \end{code}
 
-Correctness theorem
+■ Correctness theorem
 
-The fundamental theorem yields a represented dialogue tree for
-every closed term of type `(ι ⇾ ι) ⇾ ι`. The final theorem
-compares the standard interpretation of such a term with the
-evaluation of its extracted Church-encoded dialogue tree.
+By the fundamental theorem, `t ᴶ` preserves the logical
+relation. The generic element `Ωᵀ` relates an oracle answer
+to its Church-encoded query. Instantiating the base relation
+with the leaf algebra `leaf` gives the evaluation equation
+for the extracted dialogue-tree term. Unlike the separate
+check of `evalᵀ-correct` above, this proof uses no inductive
+dialogue tree or representation witness.
 
 \begin{code}
 
 Theorem : (t : T ε ((ι ⇾ ι) ⇾ ι))
-        → (α : ℕᴺ) → ⟦ t ⟧ α ≡ ⟦ evalᵀ · dialogue-treeᵀ t ⟧ α
-Theorem t α = trans eq₀ (sym eq₁)
- where
-  cor : Rι α (⟦ t ⟧ α) (⟦ t ᴶ · Ωᵀ ⟧)
-  cor = Cor[R] t α (λ {n} {d} → RΩ α {n} {d})
-  d : D
-  d = pr₁ cor
-  r : d represents ⟦ t ᴶ · Ωᵀ ⟧
-  r = pr₁ (pr₂ cor)
-  eq₀ : ⟦ t ⟧ α ≡ eval d α
-  eq₀ = pr₂ (pr₂ cor)
-  eq₁ : ⟦ evalᵀ ⟧ ⟦ dialogue-treeᵀ t ⟧ α ≡ eval d α
-  eq₁ = evalᵀ-correct ⋆ d ⟦ t ᴶ · Ωᵀ ⟧ r α
+        → (α : ℕᴺ)
+        → ⟦ t ⟧ α ≡ ⟦ evalᵀ · dialogue-treeᵀ t ⟧ α
+Theorem t α = sym (Cor[R] t α (λ {n} {d} → RΩ α {n} {d}) leaf)
 
 \end{code}
