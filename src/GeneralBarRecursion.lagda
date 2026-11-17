@@ -1,29 +1,29 @@
 
- ===========================
- =                         =
- =  General Bar Recursion  =
- =                         =
- ===========================
+ ========================================
+ =                                      =
+ =  Application: General Bar Recursion  =
+ =                                      =
+ ========================================
 
     Chuangjie Xu, February 2020
 
-    updated in May 2020
+    Updated in May 2020
 
 Schwichtenberg [2] shows that the terms of Gödel's System T are closed
 under the rule of Spector's bar recursion of types 0 and 1.  Oliva and
 Steila [1] provide a more direct proof of Schwichtenberg's theorem via
 their notion of general bar recursion whose termination condition is
 given by decidable monotone predicates on finite sequences.  We present
-their construction general-bar-recursion functionals [1, Def. 3.1&3.3]
+their construction of general bar-recursion functionals [1, Def. 3.1&3.3]
 as an instance of our translation, and then prove its correctness using
-the fundamental theorem of logical relation.
+the fundamental theorem of logical relations.
 
 
 References
 
 [1] P. Oliva and S. Steila.  A direct proof of Schwichtenberg's bar
-    recursion closure theorem.  Accepted by The Journal of Symbolic
-    Logic, 2017.
+    recursion closure theorem.  The Journal of Symbolic Logic, vol. 83,
+    no. 1, pp. 70–83, 2018.
 
 [2] H. Schwichtenberg.  On bar recursion of types 0 and 1.  The
     Journal of Symbolic Logic, vol. 44, no. 3, pp. 325–329, 1979.
@@ -34,67 +34,27 @@ References
 
 open import Preliminaries
 open import T
-open import TAuxiliaries hiding (Φ ; Φ-spec)
+open import TAuxiliaries
 
-module BarRecursion (σ : Ty) where
+module GeneralBarRecursion (σ : Ty) where
 
 \end{code}
 
 ■ Function extensionality
 
-We will need function extensionality in the proofs of
+We use function extensionality in the proofs of
 
- 1. Ψ k is a bar recursion functional of λα.k [1, Lemma 2.1], and
+ 1. Ψ k satisfies the general bar-recursion equations for S defined by
+    s ∈ S ⇔ k < | s | [1, Lemma 2.1], and
 
  2. κ preserves the logical relation.
+
+The final correctness theorem inherits this assumption.
 
 
 ■ Preliminaries
 
 \begin{code}
-
---
--- finite sequences of natural numbers
---
-ℕ* : Set
-ℕ* = ℕᴺ × ℕ
-
-infixl 10 _✦_
-
---
--- s ✦ n -- append n to s
---
-_✦_ : ℕ* → ℕ → ℕ*
-(α , l) ✦ n = rec (λ _ v → rec v (λ _ _ → 0) , 1)
-                  (λ n z f v → rec (f 0) (λ i g → pr₁ (z (f ∘ suc) v) i) , suc (suc n))
-                  l α n
-
---
--- s ∋ β means s is an initial segment of β.
---
-_∋_ : ℕ* → ℕᴺ → Set
-(α , l) ∋ β = ∀ i → i < l → α i ≡ β i
-
---
--- extend finite sequences to infinite ones
---
-_^ : ℕ* → ℕᴺ
-_^ = pr₁
-
-s∋sn^ : (s : ℕ*) {n : ℕ} → s ∋ ((s ✦ n) ^)
-s∋sn^ (α , suc l)  0       _         = refl
-s∋sn^ (α , suc l) (suc i) (≤suc i<l) = s∋sn^ (α ∘ suc , l) i i<l
-
---
--- length of finite sequences
---
-len : ℕ* → ℕ
-len = pr₂
-
-len✦-suc : {s : ℕ*} {n : ℕ} → suc (len s) ≡ len (s ✦ n)
-len✦-suc {α , 0}     {n} = refl
-len✦-suc {α , suc l} {n} = refl
-
 
 infix 2 _∈_ _∉_
 --
@@ -121,11 +81,11 @@ S secures Y = ∀ (s : ℕ*) → s ∈ S → ∀ (α : ℕᴺ) → s ∋ α → 
 
 \begin{code}
 
-gBR : {A : Set}
+GBR : {A : Set}
     → (ℕ* → ℕ)
     → ((ℕ* → A) → (ℕ* → (ℕ → A) → A) → ℕ* → A)
     → Set
-gBR {A} S ξ = ∀ (G : ℕ* → A) (H : ℕ* → (ℕ → A) → A) (s : ℕ*) →
+GBR {A} S ξ = ∀ (G : ℕ* → A) (H : ℕ* → (ℕ → A) → A) (s : ℕ*) →
                   (s ∈ S → ξ G H s ≡ G s)
                 × (s ∉ S → ξ G H s ≡ H s (λ n → ξ G H (s ✦ n)))
 
@@ -221,12 +181,12 @@ open import GentzenTranslation Jι η κ public
 --
 -- [1, Lemma 2.1] : Ψ k is a bar recursion functional for λα.k
 --
-Ψ-gBR : FunExt
-      → (k : ℕ) → gBR (λ s → lt k (len s)) (⟦ Ψ ⟧ k)
+Ψ-GBR : FunExt
+      → (k : ℕ) → GBR (λ s → lt k (len s)) (⟦ Ψ ⟧ k)
 -- i.e. for any G H s
 --
 --   k < |s|  →  Ψ k G H s ≡ G s
---   k ≮ |s|  →  Ψ k G H s ≡ H s (λ m → Ψ k G H (s ✦ m)
+--   k ≮ |s|  →  Ψ k G H s ≡ H s (λ m → Ψ k G H (s ✦ m))
 --
 -- The proof is given in the appendix.
 
@@ -254,7 +214,7 @@ open import GentzenTranslation Jι η κ public
 -- Base case of the logical relation
 --
 Rι : ℕᴺ → ⟦ ι ⟧ʸ → ⟦ Jι ⟧ʸ → Set
-Rι α n (Y , S , B) = n ≡ Y α × monotone S × S secures Y × gBR S B
+Rι α n (Y , S , B) = n ≡ Y α × monotone S × S secures Y × GBR S B
 
 --
 -- η preserves the logical relation
@@ -289,16 +249,15 @@ RΩ funExt α {n} {w} = Rκ funExt α ⋆ claim {n} {w}
    k<|s|  : k < len s
    k<|s|  = Lt→< r
    k<|sm| : k < len (s ✦ m)
-   k<|sm| = ≤trans k<|s| (≤trans (≤suc' ≤refl) (≤refl' len✦-suc))
+   k<|sm| = ≤trans k<|s| (≤trans (≤suc' ≤refl) (≤refl' (len✦-suc s)))
   SΑsVΑ : (k : ℕ) → 𝑆 (⟦ Α ⟧ k) secures 𝑉 (⟦ Α ⟧ k)
   SΑsVΑ k s k<|s| α sα = sα k (Lt→< k<|s|)
   claim : ∀ i → Rι α (α i) (⟦ Α ⟧ i)
-  claim i = refl , mSΑ i , SΑsVΑ i , Ψ-gBR funExt i
-
+  claim i = refl , mSΑ i , SΑsVΑ i , Ψ-GBR funExt i
 
 \end{code}
 
-■ Theorem 11. For any closed term Y : ℕᴺ → ℕ of T,
+■ For any closed term Y : ℕᴺ → ℕ of T,
 
   1. S(YᴶΩ) is a monotone predicate securing Y, and
 
@@ -306,12 +265,18 @@ RΩ funExt α {n} {w} = Rκ funExt α ⋆ claim {n} {w}
 
 \begin{code}
 
-Thm[gBR] : FunExt
+𝐒 : T ε (ιᶥ ⇾ ι) → T ε (ι* ⇾ ι)
+𝐒 Y = S (Y ᴶ · Ω)
+
+𝐠𝐛𝐫 : T ε (ιᶥ ⇾ ι) → T ε ((ι* ⇾ σ) ⇾ (ι* ⇾ (ι ⇾ σ) ⇾ σ) ⇾ ι* ⇾ σ)
+𝐠𝐛𝐫 Y = B (Y ᴶ · Ω)
+
+Thm[GBR] : FunExt
          → (Y : T ε (ιᶥ ⇾ ι))
-         →   monotone (𝑆 ⟦ Y ᴶ · Ω ⟧)
-           × 𝑆 ⟦ Y ᴶ · Ω ⟧ secures ⟦ Y ⟧
-           × gBR (𝑆 ⟦ Y ᴶ · Ω ⟧) (𝐵 ⟦ Y ᴶ · Ω ⟧)
-Thm[gBR] funExt Y = mS , SsY , gbr
+         →   monotone ⟦ 𝐒 Y ⟧
+           × ⟦ 𝐒 Y ⟧ secures ⟦ Y ⟧
+           × GBR ⟦ 𝐒 Y ⟧ ⟦ 𝐠𝐛𝐫 Y ⟧
+Thm[GBR] funExt Y = mS , SsY , gbr-correct
  where
   --
   -- Extend Rι to R for all types of T
@@ -327,9 +292,9 @@ Thm[gBR] funExt Y = mS , SsY , gbr
   fact α = LR.FTLR Y ⋆ (RΩ funExt α)
    where
     import LogicalRelation Jι η κ (Rι α) (Rη α) (Rκ funExt α) as LR
-  mS : monotone (𝑆 ⟦ Y ᴶ · Ω ⟧)
+  mS : monotone ⟦ 𝐒 Y ⟧
   mS = pr₁ (pr₂ (fact 0ʷ))
-  SsY : 𝑆 ⟦ Y ᴶ · Ω ⟧ secures ⟦ Y ⟧
+  SsY : ⟦ 𝐒 Y ⟧ secures ⟦ Y ⟧
   SsY s sS α sα = begin
      ⟦ Y ⟧ (s ^)
     ≡⟨ pr₁ (fact (s ^)) ⟩
@@ -339,73 +304,29 @@ Thm[gBR] funExt Y = mS , SsY , gbr
     ≡⟨ sym (pr₁ (fact α)) ⟩
      ⟦ Y ⟧ α
     ∎
-  gbr : gBR (𝑆 ⟦ Y ᴶ · Ω ⟧) (𝐵 ⟦ Y ᴶ · Ω ⟧)
-  gbr = pr₂ (pr₂ (pr₂ (fact 0ʷ)))
-
---
--- Functional of general bar recursion
---
-GBF : T ε (ιᶥ ⇾ ι)
-    → (ℕ* → ⟦ σ ⟧ʸ) → (ℕ* → (ℕ → ⟦ σ ⟧ʸ) → ⟦ σ ⟧ʸ) → ℕ* → ⟦ σ ⟧ʸ
-GBF t = ⟦ B (t ᴶ · Ω) ⟧
-
-
-\end{code}
-
-■ Spector's Bar-recursion functionals
-
-\begin{code}
-
-private
- --
- -- Step functionals fro general bar recursion
- --
- H : {Γ : Cxt}
-   → T Γ ((ιᶥ ⇾ ι)           -- termination functional
-        ⇾ (ι* ⇾ σ)           -- base functional for Spector's bar recursion
-        ⇾ (ι* ⇾ (ι ⇾ σ) ⇾ σ) -- step functional for Spector's bar recursion
-        ⇾ ι* ⇾ (ι ⇾ σ) ⇾ σ)  -- step functional for general bar recursion
- H = Lam (Lam (Lam (Lam (Lam (If · (Minus · Len ν₁ · (ν₄ · ^ ν₁ ^))
-                                 · (ν₃ · ν₁)
-                                 · (ν₂ · ν₁ · ν₀))))))
-
- --
- -- Converting general-bar-recursion functional to Spector's one
- --
- Φ : {Γ : Cxt}
-   → T Γ ((ιᶥ ⇾ ι)
-        ⇾ ((ι* ⇾ σ) ⇾ (ι* ⇾ (ι ⇾ σ) ⇾ σ) ⇾ ι* ⇾ σ)  -- general bar recursion
-        ⇾ ((ι* ⇾ σ) ⇾ (ι* ⇾ (ι ⇾ σ) ⇾ σ) ⇾ ι* ⇾ σ)) -- Spector's bar recursion
- Φ = Lam (Lam (Lam (Lam (ν₂ · Lam (Ψ · (ν₄ · ^ ν₀ ^) · ν₂ · ν₁ · ν₀) · (H · ν₃ · ν₁ · ν₀)))))
-
---
--- Functional of Spector's bar recursion
---
-SBF : T ε (ιᶥ ⇾ ι)
-    → (ℕ* → ⟦ σ ⟧ʸ) → (ℕ* → (ℕ → ⟦ σ ⟧ʸ) → ⟦ σ ⟧ʸ) → ℕ* → ⟦ σ ⟧ʸ
-SBF t = ⟦ Φ · t · B (t ᴶ · Ω) ⟧
-
+  gbr-correct : GBR ⟦ 𝐒 Y ⟧ ⟦ 𝐠𝐛𝐫 Y ⟧
+  gbr-correct = pr₂ (pr₂ (pr₂ (fact 0ʷ)))
 
 \end{code}
 
 ■ Appendix : Proofs of
-             1. Ψ-gBR : Ψ k is a bar recursion functional for λα.k
-             2. Rκ : κ preserves the logical relation
+  1. Ψ-GBR : Ψ k is a bar recursion functional for λα.k
+  2. Rκ : κ preserves the logical relation
 
 \begin{code}
 
 --
 -- [1, Lemma 2.1] : Ψ k is a bar recursion functional for λα.k
 --
--- Ψ-gBR : FunExt
---       → (k : ℕ) → gBR (λ s → lt k (len s)) (⟦ Ψ ⟧ k)
+-- Ψ-GBR : FunExt
+--       → (k : ℕ) → GBR (λ s → lt k (len s)) (⟦ Ψ ⟧ k)
 --
 -- i.e. for any G H s
 --
 --   k < |s|  →  Ψ k G H s ≡ G s
---   k ≮ |s|  →  Ψ k G H s ≡ H s (λ m → Ψ k G H (s ✦ m)
+--   k ≮ |s|  →  Ψ k G H s ≡ H s (λ m → Ψ k G H (s ✦ m))
 --
-Ψ-gBR funExt k G H s = base , step
+Ψ-GBR funExt k G H s = base , step
  where
   base : ¬ (lt k (len s) ≡ 0)
        → ⟦ Ψ ⟧ k G H s ≡ G s
@@ -427,7 +348,7 @@ SBF t = ⟦ Φ · t · B (t ᴶ · Ω) ⟧
       † = ap (λ x → ⟦ φ ⟧ x G H s)
              (trans (ap (suc k -_) |s|≡n) (Lm[n+1-n≡1] k))
       k+1≡|sm| : {m : ℕ} → suc k ≡ len (s ✦ m)
-      k+1≡|sm| = trans (sym (ap suc |s|≡n)) len✦-suc
+      k+1≡|sm| = trans (sym (ap suc |s|≡n)) (len✦-suc s)
       k<|sm| : {m : ℕ} → ¬ (lt k (len (s ✦ m)) ≡ 0)
       k<|sm| {m} = <→Lt (≤refl' k+1≡|sm|)
       fact : (m : ℕ) → ⟦ Ψ ⟧ k G H (s ✦ m) ≡ G (s ✦ m)
@@ -454,12 +375,12 @@ SBF t = ⟦ Φ · t · B (t ᴶ · Ω) ⟧
          → ⟦ φ ⟧ (k+1-|s|-1) G H (s ✦ m) ≡ ⟦ φ ⟧ (suc k - len (s ✦ m)) G H (s ✦ m)
       ex m = ap (λ x → ⟦ φ ⟧ x G H (s ✦ m))
                 (trans (Lm[k+1=n+1-m→k=n-m] k k+1-|s|-1-spec)
-                       (ap (suc k -_) (len✦-suc {s})))
+                       (ap (suc k -_) (len✦-suc s)))
       □ :  H s (λ m → ⟦ φ ⟧ (k+1-|s|-1) G H (s ✦ m))
          ≡ H s (λ m → ⟦ φ ⟧ (suc k - len (s ✦ m)) G H (s ✦ m))
       □ = ap (H s) (funExt ex)
       n≮|sm| : {m : ℕ} → lt k (len (s ✦ m)) ≡ 0
-      n≮|sm| = transport (λ x → lt k x ≡ 0) len✦-suc (≤→Lt |s|<k)
+      n≮|sm| = transport (λ x → lt k x ≡ 0) (len✦-suc s) (≤→Lt |s|<k)
       ex' : (m : ℕ)
           → ⟦ Ψ ⟧ k G H (s ✦ m) ≡ ⟦ φ ⟧ (suc k - len (s ✦ m)) G H (s ✦ m)
       ex' m = If-spec₀ n≮|sm|
@@ -471,7 +392,8 @@ SBF t = ⟦ Φ · t · B (t ᴶ · Ω) ⟧
 --
 -- κ preserves the logical relation
 --
--- Rκ : (α : ℕᴺ)
+-- Rκ : FunExt
+--    → (α : ℕᴺ)
 --    → {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ) {f : ⟦ ι ⇾ ι ⟧ʸ} {g : ⟦ ι ⇾ Jι ⟧ʸ}
 --    → (∀ i → Rι α (f i) (g i))
 --    → ∀ {n w} → Rι α n w → Rι α (f n) (⟦ κ ⟧ᵐ γ g w)
@@ -515,7 +437,7 @@ Rκ funExt α γ {f} {g} ζ {n} {Y , S , B} (n≡Yα , mS , SsY , gbr) = e , mS�
     sSg = pr₂ (Min-nonzero (S s) _ sSκ)
     sSgα : s ∈ 𝑆 (g (Y α))
     sSgα = transport (λ x → s ∈ 𝑆 (g x)) Ys≡Yα sSg
-  gbrκ : gBR (𝑆 (⟦ κ ⟧ᵐ γ g (Y , S , B))) (𝐵 (⟦ κ ⟧ᵐ γ g (Y , S , B)))
+  gbrκ : GBR (𝑆 (⟦ κ ⟧ᵐ γ g (Y , S , B))) (𝐵 (⟦ κ ⟧ᵐ γ g (Y , S , B)))
   gbrκ G H s = base , step
    where
     base : s ∈ 𝑆 (⟦ κ ⟧ᵐ γ g (Y , S , B))

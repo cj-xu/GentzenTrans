@@ -7,7 +7,7 @@
 
     Chuangjie Xu, July 2019
 
-    Updated in February 2020
+    Updated in February 2020 and November 2026
 
 \begin{code}
 
@@ -34,7 +34,7 @@ t ○ u = Comp · t · u
 
 \end{code}
 
-■ Sequences of natural numbers
+■ Infinite sequences of natural numbers
 
 \begin{code}
 
@@ -57,28 +57,6 @@ t ☆ u = Cons · t · u
   -- i.e.
   -- Cons n u  0      = n
   -- Cons n u (suc i) = u i
-
--- Finite sequences of natural numbers
-ι* : Ty
-ι* = ιᶥ ⊠ ι
-
-^_^ : {Γ : Cxt} → T Γ ι* → T Γ (ι ⇾ ι)
-^ t ^ = Pr1 · t
-
-Len : {Γ : Cxt} → T Γ ι* → T Γ ι
-Len t = Pr2 · t
-
-_★_ : {Γ : Cxt} → T Γ ι* → T Γ ι → T Γ ι*
-t ★ u = Cons · Len t · ^ t ^ · u
- where
-  Cons : {Γ : Cxt}
-      → T Γ (ι ⇾ ιᶥ ⇾ ι ⇾ ι*)
-  Cons = Rec · Lam (Lam (Pair · (Rec · ν₀ · Lam (Lam Zero)) · (Suc · Zero)))
-      -- rec  (λ f   v .  (      rec   v   (λ x   y . 0)    , 1 ))
-             · Lam (Lam (Lam (Lam (Pair · (Rec · (ν₁ · Zero) · Lam (Lam (Pr1 · (ν₄ · (ν₃ ○ Suc) · ν₂) · ν₁)))
-      --      (λ n   z    f    v .  (      rec    (f   0)     (λ i   g . pr₁   (z    (f ∘ suc)    v)    i)
-                                        · (Suc · (Suc · ν₃))))))
-      --                                ,  suc   (suc   n) ) )
 
 \end{code}
 
@@ -273,5 +251,53 @@ Lm[k+1=n+1-m→k=n-m] : (n : ℕ) {m k : ℕ} → suc k ≡ suc n - m → k ≡ 
 Lm[k+1=n+1-m→k=n-m]  0      {0}     refl = refl
 Lm[k+1=n+1-m→k=n-m] (suc n) {0}     refl = refl
 Lm[k+1=n+1-m→k=n-m] (suc n) {suc m} e    = Lm[k+1=n+1-m→k=n-m] n e
+
+Lm[n<m→m-n≠0] : (n m : ℕ) → n < m → ¬ (m - n ≡ 0)
+Lm[n<m→m-n≠0]  0      (suc m) r        = λ ()
+Lm[n<m→m-n≠0] (suc n) (suc m) (≤suc r) = Lm[n<m→m-n≠0] n m r
+
+Lm[n≤m→n-m=0] : (n m : ℕ) → n ≤ m → n - m ≡ 0
+Lm[n≤m→n-m=0]  0       0      r        = refl
+Lm[n≤m→n-m=0]  0      (suc n) r        = refl
+Lm[n≤m→n-m=0] (suc n) (suc m) (≤suc r) = Lm[n≤m→n-m=0] n m r
+
+\end{code}
+
+■ Finite sequences of natural numbers
+
+\begin{code}
+
+ι* : Ty
+ι* = ιᶥ ⊠ ι
+
+^_^ : {Γ : Cxt} → T Γ ι* → T Γ (ι ⇾ ι)
+^ t ^ = Pr1 · t
+
+Len : {Γ : Cxt} → T Γ ι* → T Γ ι
+Len t = Pr2 · t
+
+Append : {Γ : Cxt} → T Γ (ι* ⇾ ι ⇾ ι*)
+Append = Lam (Lam (Rec · Lam (Lam (Pair · (Rec · ν₀ · Lam (Lam ν₄)) · (Suc · Zero)))
+                       · Lam (Lam (Lam (Lam
+                           (Pair · (Rec · (ν₁ · Zero)
+                                        · Lam (Lam (Pr1 · (ν₄ · (ν₃ ○ Suc) · ν₂) · ν₁)))
+                                 · (Suc · (Suc · ν₃))))))
+                       · Len ν₁ · ^ ν₁ ^ · ν₀))
+
+_★_ : {Γ : Cxt} → T Γ ι* → T Γ ι → T Γ ι*
+t ★ u = Append · t · u
+
+Overwrite : {Γ : Cxt} → T Γ (ι* ⇾ ιᶥ ⇾ ιᶥ)
+Overwrite = Lam (Lam (Lam (If · (Lt · ν₀ · Len ν₂)
+                              · (^ ν₂ ^ · ν₀)
+                              · (ν₁ · ν₀))))
+
+infixl 10 _＠_
+
+_＠_ : ℕ* → ℕᴺ → ℕᴺ
+s ＠ α = ⟦ Overwrite ⟧ s α
+
+s∋s＠α : (s : ℕ*) (α : ℕᴺ) → s ∋ (s ＠ α)
+s∋s＠α s α i i<|s| = sym (If-spec₁ (<→Lt i<|s|))
 
 \end{code}

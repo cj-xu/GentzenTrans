@@ -124,7 +124,7 @@ form the translation of Y.
 
 \begin{code}
 
-import BarRecursion
+import GeneralBarRecursion
 
 \end{code}
 

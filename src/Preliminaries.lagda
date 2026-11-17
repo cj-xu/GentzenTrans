@@ -179,6 +179,12 @@ n > m = m < n
 ≤suc'  ≤zero   = ≤zero
 ≤suc' (≤suc r) = ≤suc (≤suc' r)
 
+≤-pred : {n m : ℕ} → suc n ≤ suc m → n ≤ m
+≤-pred (≤suc r) = r
+
+suc≰zero : {n : ℕ} → ¬ (suc n ≤ 0)
+suc≰zero ()
+
 \end{code}
 
 ■ Infinite sequences
@@ -225,5 +231,65 @@ data _≡[_]_ {A : Set} : A ᴺ → ℕ → A ᴺ → Set where
          → α ≡[ n ] α
 ≡[]-refl {0}     = ≡[zero]
 ≡[]-refl {suc n} = ≡[suc] refl ≡[]-refl
+
+drop : {A : Set} → ℕ → A ᴺ → A ᴺ
+drop 0       α = α
+drop (suc n) α = drop n (tail α)
+
+drop-head : {A : Set} (n : ℕ) (α : A ᴺ) → head (drop n α) ≡ α n
+drop-head 0       α = refl
+drop-head (suc n) α = drop-head n (tail α)
+
+drop-agreement : {A : Set} (k : ℕ) {m : ℕ} {α β : A ᴺ}
+               → tail (drop k α) ≡[ m ] tail (drop k β)
+               → drop (suc k) α ≡[ m ] drop (suc k) β
+drop-agreement 0       e = e
+drop-agreement (suc k) e = drop-agreement k e
+
+\end{code}
+
+■ Finite sequences
+
+\begin{code}
+
+_* : Set → Set
+A * = A ᴺ × ℕ
+
+ℕ* : Set
+ℕ* = ℕ *
+
+len : {A : Set} → A * → ℕ
+len = pr₂
+
+infixl 10 _✦_
+
+_✦_ : {A : Set} → A * → A → A *
+(α , l) ✦ a = rec (λ _ v → rec v (λ _ _ → a) , 1)
+                  (λ n z f v → rec (f 0) (λ i g → pr₁ (z (f ∘ suc) v) i) , suc (suc n))
+                  l α a
+
+len✦-suc : {A : Set} (s : A *) {a : A} → suc (len s) ≡ len (s ✦ a)
+len✦-suc (α , 0)     = refl
+len✦-suc (α , suc l) = refl
+
+_∋_ : {A : Set} → A * → A ᴺ → Set
+(α , l) ∋ β = ∀ i → i < l → α i ≡ β i
+
+✦-prefix : {A : Set} (s : A *) (α : A ᴺ) {a : A}
+        → s ∋ α → a ≡ α (len s) → (s ✦ a) ∋ α
+✦-prefix (γ , 0)     α p e 0       _         = e
+✦-prefix (γ , 0)     α p e (suc i) (≤suc ())
+✦-prefix (γ , suc l) α p e 0       _         = p 0 (≤suc ≤zero)
+✦-prefix (γ , suc l) α p e (suc i) (≤suc r) =
+  ✦-prefix (γ ∘ suc , l) (tail α)
+    (λ j q → p (suc j) (≤suc q)) e i
+    (transport (λ k → i < k) (len✦-suc ((γ ∘ suc) , l)) r)
+
+_^ : {A : Set} → A * → A ᴺ
+_^ = pr₁
+
+s∋sn^ : {A : Set} (s : A *) {a : A} → s ∋ ((s ✦ a) ^)
+s∋sn^ (α , suc l)  0       _         = refl
+s∋sn^ (α , suc l) (suc i) (≤suc i<l) = s∋sn^ (α ∘ suc , l) i i<l
 
 \end{code}
