@@ -15,37 +15,49 @@ continuity using functionals of general bar recursion.
 
 Update in November 2026:
 
+- Constructed a System T term for the modulus of uniform continuity.
+
 - Proved the correctness of the constructed modulus.
 
 \begin{code}
 
 {-# OPTIONS --without-K --safe #-}
 
+module UniformContinuityViaGeneralBarRecursion where
+
 open import Preliminaries
 open import T
 open import TAuxiliaries
 open import GeneralBarRecursion ι public
-open import UniformContinuity
+open import UniformContinuity using (_is-a-modulus-of-uniform-continuity-of_)
 
 \end{code}
 
-For a fixed bound δ, `MB t δ` starts the recursion at the empty sequence.
-If the current sequence secures `t`, the base case returns 0. Otherwise,
-the step takes one plus the maximum of the recursive bounds for the
-possible next inputs i ≤ δ(length s).
+For a fixed bound δ, evaluating `𝐌 t δ` starts the recursion at the
+empty sequence. If the current sequence secures `t`, the base case
+returns 0. Otherwise, the step takes one plus the maximum of the
+recursive bounds for the possible next inputs i ≤ δ(length s).
 
 \begin{code}
 
 ⟨⟩ : ℕ*
 ⟨⟩ = (λ n → n) , 0
 
-MB : T ε (ιᶥ ⇾ ι) → ℕᴺ → ℕ
-MB t δ = ⟦ 𝐠𝐛𝐫 t ⟧ G H ⟨⟩
- where
-  G : ℕ* → ℕ
-  G _ = 0
-  H : ℕ* → ℕᴺ → ℕ
-  H (_ , n) f = suc (⟦ Φ ⟧ f (δ n))
+EmptySeq : {Γ : Cxt} → T Γ ι*
+EmptySeq = Pair · Lam ν₀ · Zero
+
+private
+ G : {Γ : Cxt} → T Γ (ι* ⇾ ι)
+ G = Lam Zero
+ -- G _ = 0
+
+ H : {Γ : Cxt} → T Γ (ιᶥ ⇾ ι* ⇾ ιᶥ ⇾ ι)
+ H = Lam (Lam (Lam (Suc · (Φ · ν₀ · (ν₂ · Len ν₁)))))
+ -- H δ s f = 1 + Φ f (δ | s |)
+
+𝐌 : T ε (ιᶥ ⇾ ι) → T ε (ιᶥ ⇾ ι)
+𝐌 t = Lam (Lam (ν₁ · G · (H · ν₀) · EmptySeq)) · 𝐠𝐛𝐫 t
+-- 𝐌 t δ = 𝐠𝐛𝐫 t G (H δ) ⟨⟩
 
 \end{code}
 
@@ -60,39 +72,35 @@ this entry is at most δ (len s), and the induction hypothesis applies.
 
 \begin{code}
 
-MB-correct : FunExt
-           → (t : T ε (ιᶥ ⇾ ι))
-           → MB t is-a-modulus-of-uniform-continuity-of ⟦ t ⟧
-MB-correct fe t {δ} {α} {β} α≤δ _ agreement =
+𝐌-correct : FunExt
+          → (t : T ε (ιᶥ ⇾ ι))
+          → ⟦ 𝐌 t ⟧ is-a-modulus-of-uniform-continuity-of ⟦ t ⟧
+𝐌-correct fe t {δ} {α} {β} α≤δ _ agreement =
   lemma (B ⟨⟩) ⟨⟩ ≤refl (λ i ()) (λ i ()) agreement
  where
   S : ℕ* → ℕ
   S = ⟦ 𝐒 t ⟧
-  G : ℕ* → ℕ
-  G _ = 0
-  H : ℕ* → ℕᴺ → ℕ
-  H s f = suc (⟦ Φ ⟧ f (δ (len s)))
   B : ℕ* → ℕ
-  B = ⟦ 𝐠𝐛𝐫 t ⟧ G H
-
-  facts = Thm[GBR] fe t
+  B = ⟦ 𝐠𝐛𝐫 t ⟧ ⟦ G ⟧ (⟦ H ⟧ δ)
   SsY : S secures ⟦ t ⟧
-  SsY = pr₁ (pr₂ facts)
-  gbr : GBR S ⟦ 𝐠𝐛𝐫 t ⟧
-  gbr = pr₂ (pr₂ facts)
+  SsY = pr₁ (pr₂ (Thm[GBR] fe t))
+  gbr : (s : ℕ*)
+      → (s ∈ ⟦ 𝐒 t ⟧ → B s ≡ ⟦ G ⟧ s)
+      × (s ∉ ⟦ 𝐒 t ⟧ → B s ≡ ⟦ H ⟧ δ s (λ n → B (s ✦ n)))
+  gbr = pr₂ (pr₂ (Thm[GBR] fe t)) ⟦ G ⟧ (⟦ H ⟧ δ)
 
   secured : (s : ℕ*) → s ∈ S → s ∋ α → s ∋ β
           → ⟦ t ⟧ α ≡ ⟦ t ⟧ β
   secured s sS sα sβ = trans (sym (SsY s sS α sα)) (SsY s sS β sβ)
 
   lemma : (m : ℕ) (s : ℕ*) → B s ≤ m → s ∋ α → s ∋ β
-     → drop (len s) α ≡[ m ] drop (len s) β
-     → ⟦ t ⟧ α ≡ ⟦ t ⟧ β
+        → drop (len s) α ≡[ m ] drop (len s) β
+        → ⟦ t ⟧ α ≡ ⟦ t ⟧ β
   lemma 0 s Bs≤0 sα sβ e = case (λ sS → secured s sS sα sβ) impossible (∈-dec S)
    where
     impossible : s ∉ S → ⟦ t ⟧ α ≡ ⟦ t ⟧ β
     impossible nsS = 𝟘-elim (suc≰zero
-      (transport (λ k → k ≤ 0) (pr₂ (gbr G H s) nsS) Bs≤0))
+      (transport (λ k → k ≤ 0) (pr₂ (gbr s) nsS) Bs≤0))
   lemma (suc m) s Bs≤m sα sβ (≡[suc] e es) =
     case (λ sS → secured s sS sα sβ) descend (∈-dec S)
    where
@@ -115,7 +123,7 @@ MB-correct fe t {δ} {α} {β} α≤δ _ agreement =
      where
       max-bound : ⟦ Φ ⟧ (λ i → B (s ✦ i)) (δ (len s)) ≤ m
       max-bound = ≤-pred
-        (transport (λ k → k ≤ suc m) (pr₂ (gbr G H s) nsS) Bs≤m)
+        (transport (λ k → k ≤ suc m) (pr₂ (gbr s) nsS) Bs≤m)
       child-bound : B sn ≤ m
       child-bound = ≤trans
         (Φ-spec (α≤δ (len s)) ⋆ (λ i → B (s ✦ i))) max-bound
