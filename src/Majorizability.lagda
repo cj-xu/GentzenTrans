@@ -46,7 +46,7 @@ Jι = ι
 -- κ g n  is the maximum of g(i) for all i < n.
 --
 κ : {Γ : Cxt} → T Γ ((ι ⇾ Jι) ⇾ Jι ⇾ Jι)
-κ = Φ
+κ = Ξ
 -- Lam (Rec · (ν₀ · Zero) · Lam (Lam (Max · ν₀ · (ν₂ · (Suc · ν₁)))))
 -- i.e.
 -- κ g  0      = g 0
@@ -55,7 +55,7 @@ Jι = ι
 κ-spec : {i j : ℕ} → i ≤ j
        → {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ)
        → (g : ℕ → ℕ) → g i ≤ ⟦ κ ⟧ᵐ γ g j
-κ-spec = Φ-spec
+κ-spec = Ξ-spec
 
 --
 -- Instantiate the translation by importing the following module

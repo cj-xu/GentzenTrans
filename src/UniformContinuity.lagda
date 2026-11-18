@@ -55,22 +55,22 @@ MoUC-is-extensional {f} {g} {φ} ex mcg {δ} {α} {β} u v em = begin
 
 --
 -- If f is uniformly continuous on Δ = {α : ℕᴺ | ∀i(αi ≤ δi)} with a
--- modulus m, then it has a maximum image Ψ(m,f,δ) on Δ.
+-- modulus m, then it has a maximum image Λ(m,f,δ) on Δ.
 --
-Ψ : {Γ : Cxt} → T Γ (ι ⇾ (ιᶥ ⇾ ι) ⇾ ιᶥ ⇾ ι)
-Ψ = Rec · Lam (Lam (ν₁ · ν₀))
+Λ : {Γ : Cxt} → T Γ (ι ⇾ (ιᶥ ⇾ ι) ⇾ ιᶥ ⇾ ι)
+Λ = Rec · Lam (Lam (ν₁ · ν₀))
 --   rec (λ f   δ  → f δ)
-        · Lam (Lam (Lam (Lam (Φ · Lam (ν₃ · Lam (ν₃ · (ν₁ ☆ ν₀)) · (Tail · ν₁)) · (Head · ν₀)))))
---       (λ n   g    f    δ → Φ  (λ i → g  (λ α → f   (i ✶ α))     (tail δ))      (head δ))
+        · Lam (Lam (Lam (Lam (Ξ · Lam (ν₃ · Lam (ν₃ · (ν₁ ☆ ν₀)) · (Tail · ν₁)) · (Head · ν₀)))))
+--       (λ n   g    f    δ → Ξ  (λ i → g  (λ α → f   (i ✶ α))     (tail δ))      (head δ))
 -- i.e.
--- Ψ  0      f δ = f 0ʷ
--- Ψ (suc n) f δ = Φ (λ i → Ψ n (λ α → f (i ✶ α)) (tail δ)) (head δ)
+-- Λ  0      f δ = f 0ʷ
+-- Λ (suc n) f δ = Ξ (λ i → Λ n (λ α → f (i ✶ α)) (tail δ)) (head δ)
 
-Ψ-spec : {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ) {f : ℕᴺ → ℕ} {δ : ℕᴺ}
+Λ-spec : {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ) {f : ℕᴺ → ℕ} {δ : ℕᴺ}
        → (m : ℕ) → (∀{α β} → α ≤¹ δ → β ≤¹ δ → α ≡[ m ] β → f α ≡ f β)
-       → ∀ α → α ≤¹ δ → f α ≤ ⟦ Ψ ⟧ᵐ γ m f δ
-Ψ-spec γ {f} {δ}  0      p α r = ≤refl' (p r ≤¹refl ≡[zero])
-Ψ-spec γ {f} {δ} (suc m) p α r = ≤trans claim₁ (≤trans claim₂ claim₃)
+       → ∀ α → α ≤¹ δ → f α ≤ ⟦ Λ ⟧ᵐ γ m f δ
+Λ-spec γ {f} {δ}  0      p α r = ≤refl' (p r ≤¹refl ≡[zero])
+Λ-spec γ {f} {δ} (suc m) p α r = ≤trans claim₁ (≤trans claim₂ claim₃)
  where
   s : head α ✶ tail α ≤¹ δ
   s  0      = r 0
@@ -81,12 +81,12 @@ MoUC-is-extensional {f} {g} {φ} ex mcg {δ} {α} {β} u v em = begin
   claim₁ = ≤refl' claim₀
   q : ∀{α' β} → α' ≤¹ tail δ → β ≤¹ tail δ → α' ≡[ m ] β → f (head α ✶ α') ≡ f (head α ✶ β)
   q u v em = p (✶≤¹ u (r 0)) (✶≤¹ v (r 0)) (≡[suc] refl em)
-  claim₂ : f (head α ✶ tail α) ≤ ⟦ Ψ ⟧ᵐ γ m (λ β → f (head α ✶ β)) (tail δ)
-  claim₂ = Ψ-spec γ m q (tail α) (r ∘ suc)
-  claim₃ : ⟦ Ψ ⟧ᵐ γ m (λ β → f (head α ✶ β)) (tail δ) ≤ ⟦ Ψ ⟧ᵐ γ (suc m) f δ
-  claim₃ = Φ-spec (r 0) γ (λ i → ⟦ Ψ ⟧ᵐ γ m (λ β → f (i ✶ β)) (tail δ))
-  --   ⟦ Ψ ⟧ᵐ γ (suc m) f δ
-  -- ≡ ⟦ Φ ⟧ᵐ γ (λ i → ⟦ Ψ ⟧ᵐ γ m (λ β → f (i ✶ β)) (tail δ)) (head δ)
+  claim₂ : f (head α ✶ tail α) ≤ ⟦ Λ ⟧ᵐ γ m (λ β → f (head α ✶ β)) (tail δ)
+  claim₂ = Λ-spec γ m q (tail α) (r ∘ suc)
+  claim₃ : ⟦ Λ ⟧ᵐ γ m (λ β → f (head α ✶ β)) (tail δ) ≤ ⟦ Λ ⟧ᵐ γ (suc m) f δ
+  claim₃ = Ξ-spec (r 0) γ (λ i → ⟦ Λ ⟧ᵐ γ m (λ β → f (i ✶ β)) (tail δ))
+  --   ⟦ Λ ⟧ᵐ γ (suc m) f δ
+  -- ≡ ⟦ Ξ ⟧ᵐ γ (λ i → ⟦ Λ ⟧ᵐ γ m (λ β → f (i ✶ β)) (tail δ)) (head δ)
 
 \end{code}
 
@@ -104,8 +104,8 @@ Jι = (ιᶥ ⇾ ι) ⊠ (ιᶥ ⇾ ι)
 κ : {Γ : Cxt} → T Γ ((ι ⇾ Jι) ⇾ Jι ⇾ Jι)
 κ = Lam (Lam (Pair · Lam (Pr1 · (ν₂ · (Pr1 · ν₁ · ν₀)) · ν₀)
 --  λ g   w →   (  ( λ α → V    (g    (V     w    α))   α )
-                   · Lam (Max · (Φ · Lam (Pr2 · (ν₃ · ν₀) · ν₁) · (Ψ · (Pr2 · ν₁ · ν₀) · (Pr1 · ν₁) · ν₀)) · (Pr2 · ν₁ · ν₀))))
---               , ( λ δ → max  (Φ  (λ i → M    (g    i)   δ)    (Ψ   (M     w    δ)    (V     w)    δ))   (M     w    δ)))
+                   · Lam (Max · (Ξ · Lam (Pr2 · (ν₃ · ν₀) · ν₁) · (Λ · (Pr2 · ν₁ · ν₀) · (Pr1 · ν₁) · ν₀)) · (Pr2 · ν₁ · ν₀))))
+--               , ( λ δ → max  (Ξ  (λ i → M    (g    i)   δ)    (Λ   (M     w    δ)    (V     w)    δ))   (M     w    δ)))
 
 --
 -- Instantiate the translation by importing the following module
@@ -174,10 +174,10 @@ Rκ δ γ {f} {g} ζ {n} {w} (e , prf) = trans e₀ e₁ , goal
    where
     m₀ m₁ m₂ : ℕ
     m₀ = M (g (V w α)) δ
-    m₁ = ⟦ Φ ⟧ᵐ γ (λ i → M (g i) δ) (⟦ Ψ ⟧ᵐ γ (M w δ) (V w) δ)
+    m₁ = ⟦ Ξ ⟧ᵐ γ (λ i → M (g i) δ) (⟦ Λ ⟧ᵐ γ (M w δ) (V w) δ)
     m₂ = M w δ
     m₀≤m₁ : m₀ ≤ m₁
-    m₀≤m₁ = Φ-spec (Ψ-spec γ (M w δ) prf α u) γ (λ i → M (g i) δ)
+    m₀≤m₁ = Ξ-spec (Λ-spec γ (M w δ) prf α u) γ (λ i → M (g i) δ)
     m₀≤m : m₀ ≤ m
     m₀≤m = ≤trans m₀≤m₁ (Max-spec₀ m₁ m₂)
     em₀ : α ≡[ m₀ ] β
@@ -240,4 +240,3 @@ Mᵘᶜ : T ε (ιᶥ ⇾ ι)
 Mᵘᶜ t = M ⟦ t ᴶ · Ω ⟧
 
 \end{code}
-

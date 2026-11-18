@@ -137,21 +137,21 @@ Min-zero-cases 0 (suc m) e f = 𝟘-elim (f refl)
 \begin{code}
 
 --
--- Φ g n  is the maximum of g(i) for all i ≤ n.
+-- Ξ g n  is the maximum of g(i) for all i ≤ n.
 --
-Φ : {Γ : Cxt} → T Γ (ιᶥ ⇾ ι ⇾ ι)
-Φ = Lam (Rec · (ν₀ · Zero) · Lam (Lam (Max · ν₀ · (ν₂ · (Suc · ν₁)))))
+Ξ : {Γ : Cxt} → T Γ (ιᶥ ⇾ ι ⇾ ι)
+Ξ = Lam (Rec · (ν₀ · Zero) · Lam (Lam (Max · ν₀ · (ν₂ · (Suc · ν₁)))))
 -- i.e.
--- Φ g  0      = g 0
--- Φ g (suc n) = max (Φ g n) (g (suc n))
+-- Ξ g  0      = g 0
+-- Ξ g (suc n) = max (Ξ g n) (g (suc n))
 
-Φ-spec : {i j : ℕ} → i ≤ j
+Ξ-spec : {i j : ℕ} → i ≤ j
        → {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ)
-       → (α : ℕᴺ) → α i ≤ ⟦ Φ ⟧ᵐ γ α j
-Φ-spec {i} {0} ≤zero _ α = ≤refl
-Φ-spec {i} {suc j} r γ α with ≤-cases r
-... | inl  refl      = Max-spec₁ (⟦ Φ ⟧ᵐ γ α j) (α (suc j))
-... | inr (≤suc i≤j) = ≤trans (Φ-spec i≤j γ α) (Max-spec₀ (⟦ Φ ⟧ᵐ γ α j) (α (suc j)))
+       → (α : ℕᴺ) → α i ≤ ⟦ Ξ ⟧ᵐ γ α j
+Ξ-spec {i} {0} ≤zero _ α = ≤refl
+Ξ-spec {i} {suc j} r γ α with ≤-cases r
+... | inl  refl      = Max-spec₁ (⟦ Ξ ⟧ᵐ γ α j) (α (suc j))
+... | inr (≤suc i≤j) = ≤trans (Ξ-spec i≤j γ α) (Max-spec₀ (⟦ Ξ ⟧ᵐ γ α j) (α (suc j)))
 
 \end{code}
 

@@ -9,8 +9,8 @@
 
     Updated in May 2020 and November 2026
 
-Following Oliva and Steila [1], we construct a System T term for
-Spector’s bar recursion from the term for general bar recursion.
+We formalize Oliba and Steila's conversion from general bar recursion
+to Spector's bar recursion [1].
 
 
 Update in November 2026:
@@ -96,20 +96,20 @@ we use
 
 \begin{code}
 
-Θ : {Γ : Cxt}
+Φ : {Γ : Cxt}
   → T Γ ((ιᶥ ⇾ ι)
       ⇾ ((ι* ⇾ σ) ⇾ (ι* ⇾ (ι ⇾ σ) ⇾ σ) ⇾ ι* ⇾ σ)  -- general bar recursion
       ⇾ ((ι* ⇾ σ) ⇾ (ι* ⇾ (ι ⇾ σ) ⇾ σ) ⇾ ι* ⇾ σ)) -- Spector's bar recursion
-Θ = Lam (Lam (Lam (Lam (ν₂ · Lam (Ψ · (ν₄ · ^ ν₀ ^) · ν₂ · ν₁ · ν₀)
+Φ = Lam (Lam (Lam (Lam (ν₂ · Lam (Ψ · (ν₄ · ^ ν₀ ^) · ν₂ · ν₁ · ν₀)
                            · (𝐻 · ν₃ · ν₁ · ν₀)))))
 
-Θ-spec : FunExt
+Φ-spec : FunExt
        → (Y : ℕᴺ → ℕ)
        → (S : ℕ* → ℕ)
        → (ξ : (ℕ* → ⟦ σ ⟧ʸ) → (ℕ* → (ℕ → ⟦ σ ⟧ʸ) → ⟦ σ ⟧ʸ) → ℕ* → ⟦ σ ⟧ʸ)
        → (monotone S × S secures Y × GBR S ξ)
-       → SBR Y (⟦ Θ ⟧ Y ξ)
-Θ-spec fe Y S ξ (mS , SsY , gbr) G H s = case claim₀ claim₁ (∈-dec S)
+       → SBR Y (⟦ Φ ⟧ Y ξ)
+Φ-spec fe Y S ξ (mS , SsY , gbr) G H s = case claim₀ claim₁ (∈-dec S)
  where
   G' : ℕ* → ⟦ σ ⟧ʸ
   G' u = ⟦ Ψ ⟧ (Y (u ^)) G H u
@@ -161,11 +161,11 @@ Spector bar recursor is T-definable.
 \begin{code}
 
 𝐬𝐛𝐫 : T ε (ιᶥ ⇾ ι) → T ε ((ι* ⇾ σ) ⇾ (ι* ⇾ (ι ⇾ σ) ⇾ σ) ⇾ ι* ⇾ σ)
-𝐬𝐛𝐫 Y = Θ · Y · (𝐠𝐛𝐫 Y)
+𝐬𝐛𝐫 Y = Φ · Y · (𝐠𝐛𝐫 Y)
 
 thm[SBR] : FunExt
          → (Y : T ε (ιᶥ ⇾ ι))
          → SBR ⟦ Y ⟧ ⟦ 𝐬𝐛𝐫 Y ⟧
-thm[SBR] fe Y = Θ-spec fe ⟦ Y ⟧ ⟦ 𝐒 Y ⟧ ⟦ 𝐠𝐛𝐫 Y ⟧ (Thm[GBR] fe Y)
+thm[SBR] fe Y = Φ-spec fe ⟦ Y ⟧ ⟦ 𝐒 Y ⟧ ⟦ 𝐠𝐛𝐫 Y ⟧ (Thm[GBR] fe Y)
 
 \end{code}
