@@ -9,30 +9,19 @@
 
     Updated in February 2020 and June 2026
 
-This module formalizes a lifting argument for proving properties of all
-T-definable functionals of type X ⇾ ι.  The key device is the reader
-nucleus Jι = X ⇾ ι.  A term f : X ⇾ ι is translated to fᴶ, and the
-translated term can be applied to a generic element Ω : Xᴶ.  Genericity
-of Ω gives pointwise agreement between the original functional f and its
-lifted representation fᴶ Ω.
+For each finite type X, we use the lifting nucleus Jι = X ⇾ ι to
+represent a T-definable functional f : X ⇾ ι by its translation fᴶ
+applied to a generic element Ω : Xᴶ.  We use this representation
+to transfer properties of fᴶΩ back to f.
 
-The first part of the module develops this representation theorem.  We
-first prove the abstract consequence of any generic element Ω.  We then
-construct generic elements directly for X = ι and X = ι ⇾ ι; these two
-proofs use only reflexivity and congruence, not function extensionality.
-For arbitrary finite type X, we construct a uniform Ω from mutually
-recursive maps up and down.  Proving genericity of this uniform Ω uses
-function extensionality.
 
-The second part packages the intended application.  Let P be a property
-of semantic functionals ⟦ X ⟧ʸ → ℕ, such as continuity when X is ι ⇾ ι.
-To prove P for every closed System-T term f : X ⇾ ι, we lift P to a
-predicate Q on translated types.  The proof then has three ingredients:
-Q is preserved by the translated constants η and κ, the generic element
-Ω satisfies Q at type X, and Ω represents ordinary inputs correctly.
-Applying Q to fᴶ Ω gives P for the lifted functional, and the
-representation theorem transfers the result back to f.  The submodule
-PredicateUsage formalizes this predicate-transfer argument.
+Update in June 2026:
+
+- Constructed a generic element Ω for every finite type X and proved
+  its genericity using function extensionality.
+
+- Showed how to transfer predicates from the lifted representations fᴶΩ
+  to T-definable functionals f : X → ℕ.
 
 \begin{code}
 
@@ -181,7 +170,7 @@ expected generic oracle: given a query f : X ⇾ ι and an input
 α : ι ⇾ ι, it returns α (f α).
 
 To prove genericity, fix x : ⟦ ι ⇾ ι ⟧ʸ.  The function clause of R asks
-us to send related inputs to related outputs.  Thus, from n Rι x h,
+us to send related inputs to related outputs.  Thus, from Rι n x h,
 which unfolds to n ≡ h x, we must prove x n ≡ x (h x).  This follows
 by congruence of the fixed function x.  No equality between functions is
 constructed, so function extensionality is unnecessary.
@@ -362,12 +351,12 @@ property transfers to P ⟦ f ⟧.
 This direct unary proof could also be recovered from the binary logical
 relation used above by taking its base relation to be Qι n h = P h,
 independent of n.  The unary presentation is kept because the lifted
-predicate Q and the final theorem P[f] are more readable in this form.
+predicate Q and the final theorem P[T-definable] are more readable in
+this form.
 
 \begin{code}
 
 module PredicateUsage
-  (funExt : FunExt)
   (P : ⟦ X ⇾ ι ⟧ʸ → Set)
   (Pη : (n : ⟦ ι ⟧ʸ) → P (λ _ → n))
   (Pκ : {g : ⟦ ι ⇾ Jι ⟧ʸ} → ((n : ⟦ ι ⟧ʸ) → P (g n))
@@ -420,10 +409,11 @@ module PredicateUsage
    claim (suc i) = ξ (Pη i) (claim i)
 
  -- Predicate-transfer theorem for all closed T-definable functionals.
- P[T-definable] : Q ⟦ Ω ⟧
+ P[T-definable] : FunExt
+                → Q ⟦ Ω ⟧
                 → (f : T ε (X ⇾ ι))
                 → P ⟦ f ⟧
- P[T-definable] qΩ f = transport P (sym e) P[fᴶΩ]
+ P[T-definable] funExt qΩ f = transport P (sym e) P[fᴶΩ]
   where
    P[fᴶΩ] : P ⟦ f ᴶ · Ω ⟧
    P[fᴶΩ] = FTQ f ⋆ qΩ
