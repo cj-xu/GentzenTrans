@@ -7,11 +7,13 @@
 
     Chuangjie Xu, July 2019
 
+    Restructured in November 2026
+
 \begin{code}
 
 {-# OPTIONS --without-K --safe #-}
 
-module T where
+module SystemT.Base where
 
 open import Preliminaries
 

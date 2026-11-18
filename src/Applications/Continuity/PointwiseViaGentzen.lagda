@@ -7,7 +7,7 @@
 
     Chuangjie Xu, July 2019
 
-    Updated in February 2020
+    Updated in February 2020 and restructured in November 2026
 
 We construct moduli of continuity via the monadic translation and then
 verify the correctness via the Fundamental Theorem of Logical Relation.
@@ -16,29 +16,12 @@ verify the correctness via the Fundamental Theorem of Logical Relation.
 
 {-# OPTIONS --without-K --safe #-}
 
+module Applications.Continuity.PointwiseViaGentzen where
+
 open import Preliminaries
-open import T
-open import TAuxiliaries
-
-module Continuity where
-
-\end{code}
-
-■ Preliminaries
-
-\begin{code}
-
-_is-a-modulus-of-continuity-of_ : (ℕᴺ → ℕ) → (ℕᴺ → ℕ) → Set
-φ is-a-modulus-of-continuity-of f = ∀ α β → α ≡[ φ α ] β → f α ≡ f β
-
-MoC-is-extensional : {f g φ : ℕᴺ → ℕ} → (∀ α → f α ≡ g α)
-                   → φ is-a-modulus-of-continuity-of g
-                   → φ is-a-modulus-of-continuity-of f
-MoC-is-extensional {f} {g} {φ} ex mcg α β em = begin
-  f α ≡⟨ ex α ⟩
-  g α ≡⟨ mcg α β em ⟩
-  g β ≡⟨ sym (ex β) ⟩
-  f β ∎
+open import SystemT.Base
+open import SystemT.Auxiliaries
+open import Applications.Continuity.Definitions
 
 \end{code}
 
@@ -65,7 +48,7 @@ Jι = (ιᶥ ⇾ ι) ⊠ (ιᶥ ⇾ ι)
 -- Instantiate the translation by importing the following module
 -- with the nucleus (Jι, η, κ)
 --
-open import GentzenTranslation Jι η κ
+open import Framework.Gentzen.Translation Jι η κ
 
 \end{code}
 
@@ -154,7 +137,7 @@ RΩ α {n} {w} = Rκ α ⋆ claim {n} {w}
 R : ℕᴺ → {ρ : Ty} → ⟦ ρ ⟧ʸ → ⟦ ⟨ ρ ⟩ᴶ ⟧ʸ → Set
 R α = LR._R_
  where
-  import LogicalRelation Jι η κ (Rι α) (Rη α) (Rκ α) as LR
+  import Framework.Gentzen.LogicalRelation Jι η κ (Rι α) (Rη α) (Rκ α) as LR
 
 --
 -- Corollary of the Fundamental Theorem of Logical Relation
@@ -162,7 +145,7 @@ R α = LR._R_
 Cor[R] : {ρ : Ty} (t : T ε ρ) (α : ℕᴺ) → R α ⟦ t ⟧ ⟦ t ᴶ ⟧
 Cor[R] t α = LR.FTLR t ⋆
  where
-  import LogicalRelation Jι η κ (Rι α) (Rη α) (Rκ α) as LR
+  import Framework.Gentzen.LogicalRelation Jι η κ (Rι α) (Rη α) (Rκ α) as LR
 
 \end{code}
 

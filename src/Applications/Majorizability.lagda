@@ -7,7 +7,7 @@
 
     Chuangjie Xu, July 2019
 
-    Updated in February 2020
+    Updated in February 2020 and restructured in November 2026
 
 We construct majorants of T-terms via the monadic translation whose
 correctness is guaranteed by the Fundamental Theorem of Logical Relation.
@@ -23,11 +23,11 @@ References
 
 {-# OPTIONS --without-K --safe #-}
 
-open import Preliminaries
-open import T
-open import TAuxiliaries
+module Applications.Majorizability where
 
-module Majorizability where
+open import Preliminaries
+open import SystemT.Base
+open import SystemT.Auxiliaries
 
 \end{code}
 
@@ -61,7 +61,7 @@ Jι = ι
 -- Instantiate the translation by importing the following module
 -- with the nucleus (Jι, η, κ)
 --
-open import GentzenTranslation Jι η κ
+open import Framework.Gentzen.Translation Jι η κ
 
 \end{code}
 
@@ -88,7 +88,7 @@ _⊲ι_ = _≤_
    → (∀ i → f i ⊲ι g i) → ∀ {n a} → n ⊲ι a → f n ⊲ι ⟦ κ ⟧ᵐ γ g a
 ⊲κ γ {f} {g} ζ {x} θ = ≤trans (ζ x) (κ-spec θ γ g)
 
-open import LogicalRelation Jι η κ _⊲ι_ ⊲η ⊲κ
+open import Framework.Gentzen.LogicalRelation Jι η κ _⊲ι_ ⊲η ⊲κ
 
 --
 -- Howard's majorizability relation extends ≤ to all types of T

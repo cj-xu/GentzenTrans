@@ -1,13 +1,14 @@
 
- ========================================
- =                                      =
- =  Application: Spector Bar Recursion  =
- =                                      =
- ========================================
+ ==================================================================
+ =                                                                =
+ =  Application: Spector bar recursion via general bar recursion  =
+ =                                                                =
+ ==================================================================
 
     Chuangjie Xu, February 2020
 
-    Updated in May 2020 and November 2026
+    Updated in May 2020 and November 2026, and
+    restructured in November 2026
 
 We formalize Oliba and Steila's conversion from general bar recursion
 to Spector's bar recursion [1].
@@ -29,14 +30,14 @@ References
 
 {-# OPTIONS --without-K --safe #-}
 
-open import T
+open import SystemT.Base
 
-module SpectorBarRecursion (σ : Ty) where
+module Applications.BarRecursion.SpectorViaGeneral (σ : Ty) where
 
 open import Preliminaries
-open import TAuxiliaries
+open import SystemT.Auxiliaries
 
-open import GeneralBarRecursion σ
+open import Applications.BarRecursion.General σ
 
 \end{code}
 

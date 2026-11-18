@@ -7,7 +7,8 @@
 
     Chuangjie Xu, July 2019
 
-    Updated in February 2020 and June 2026
+    Updated in February 2020 and June 2026, and
+    restructured in November 2026
 
 For each finite type X, we use the lifting nucleus Jι = X ⇾ ι to
 represent a T-definable functional f : X ⇾ ι by its translation fᴶ
@@ -28,8 +29,8 @@ Update in June 2026:
 {-# OPTIONS --without-K --safe #-}
 
 open import Preliminaries
-open import T
-open import TAuxiliaries
+open import SystemT.Base
+open import SystemT.Auxiliaries
 
 \end{code}
 
@@ -43,7 +44,7 @@ Gentzen translation with the reader nucleus.
 
 \begin{code}
 
-module Lifting (X : Ty) where
+module Applications.Lifting (X : Ty) where
 
 Jι : Ty
 Jι = X ⇾ ι
@@ -57,7 +58,7 @@ Jι = X ⇾ ι
  -- λ(g : ι ⇾ X ⇾ ι). λ(f : X ⇾ ι). λ(x : X). g (f x) x
 
 -- Instantiate the Gentzen translation with the reader nucleus.
-open import GentzenTranslation Jι η κ
+open import Framework.Gentzen.Translation Jι η κ
 
 \end{code}
 
@@ -94,14 +95,14 @@ R : ⟦ X ⟧ʸ → {ρ : Ty}
   → ⟦ ρ ⟧ʸ → ⟦ ⟨ ρ ⟩ᴶ ⟧ʸ → Set
 R x = LR._R_
  where
-  import LogicalRelation Jι η κ (Rι x) (Rη x) (Rκ x) as LR
+  import Framework.Gentzen.LogicalRelation Jι η κ (Rι x) (Rη x) (Rκ x) as LR
 
 -- Extend the same relation to source and translated environments.
 Rˣ : (x : ⟦ X ⟧ʸ) {Γ : Cxt}
    → ⟦ Γ ⟧ˣ → ⟦ ⟪ Γ ⟫ᴶ ⟧ˣ → Set
 Rˣ x = LR._Rˣ_
  where
-  import LogicalRelation Jι η κ (Rι x) (Rη x) (Rκ x) as LR
+  import Framework.Gentzen.LogicalRelation Jι η κ (Rι x) (Rη x) (Rκ x) as LR
 
 \end{code}
 
@@ -130,7 +131,7 @@ Cor : {Γ : Cxt}
     → ⟦ f ⟧ᵐ γ x ≡ ⟦ f ᴶ · ω ⟧ᵐ δ x
 Cor ω generic f x {δ = δ} ξ = LR.FTLR f ξ (generic δ x)
  where
-  import LogicalRelation Jι η κ (Rι x) (Rη x) (Rκ x) as LR
+  import Framework.Gentzen.LogicalRelation Jι η κ (Rι x) (Rη x) (Rκ x) as LR
 
 \end{code}
 

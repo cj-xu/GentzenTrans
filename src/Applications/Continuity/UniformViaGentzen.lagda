@@ -7,7 +7,7 @@
 
     Chuangjie Xu, August 2019
 
-    Updated in February 2020
+    Updated in February 2020 and restructured in November 2026
 
 For T-definable function f : ℕᴺ → ℕ we construct a modulus of uniform
 continuity, that is, a function φ : ℕᴺ → ℕ such that f is uniformly
@@ -18,45 +18,20 @@ for each sequence δ.
 
 {-# OPTIONS --without-K --safe #-}
 
-open import Preliminaries
-open import T
-open import TAuxiliaries
+module Applications.Continuity.UniformViaGentzen where
 
-module UniformContinuity where
+open import Preliminaries
+open import SystemT.Base
+open import SystemT.Auxiliaries
+open import Applications.Continuity.Definitions
 
 \end{code}
 
-■ Preliminaries
+■ If f is uniformly continuous on Δ = {α : ℕᴺ | ∀i(αi ≤ δi)} with a
+  modulus m, then it has a maximum image Λ(m,f,δ) on Δ.
 
 \begin{code}
 
-_≤¹_ : ℕᴺ → ℕᴺ → Set
-α ≤¹ β = ∀ i → α i ≤ β i
-
-≤¹refl : ∀{α} → α ≤¹ α
-≤¹refl i = ≤refl
-
-✶≤¹ : {α β : ℕᴺ} {n : ℕ} → α ≤¹ tail β → n ≤ β 0 → n ✶ α ≤¹ β
-✶≤¹ u r  0      = r
-✶≤¹ u r (suc i) = u i
-
-_is-a-modulus-of-uniform-continuity-of_ : (ℕᴺ → ℕ) → (ℕᴺ → ℕ) → Set
-φ is-a-modulus-of-uniform-continuity-of f =
-  ∀{δ α β} → α ≤¹ δ → β ≤¹ δ → α ≡[ φ δ ] β → f α ≡ f β
-
-MoUC-is-extensional : {f g φ : ℕᴺ → ℕ} → (∀ α → f α ≡ g α)
-                    → φ is-a-modulus-of-uniform-continuity-of g
-                    → φ is-a-modulus-of-uniform-continuity-of f
-MoUC-is-extensional {f} {g} {φ} ex mcg {δ} {α} {β} u v em = begin
-  f α ≡⟨ ex α ⟩
-  g α ≡⟨ mcg u v em ⟩
-  g β ≡⟨ sym (ex β) ⟩
-  f β ∎
-
---
--- If f is uniformly continuous on Δ = {α : ℕᴺ | ∀i(αi ≤ δi)} with a
--- modulus m, then it has a maximum image Λ(m,f,δ) on Δ.
---
 Λ : {Γ : Cxt} → T Γ (ι ⇾ (ιᶥ ⇾ ι) ⇾ ιᶥ ⇾ ι)
 Λ = Rec · Lam (Lam (ν₁ · ν₀))
 --   rec (λ f   δ  → f δ)
@@ -111,7 +86,7 @@ Jι = (ιᶥ ⇾ ι) ⊠ (ιᶥ ⇾ ι)
 -- Instantiate the translation by importing the following module
 -- with the nucleus (Jι, η, κ)
 --
-open import GentzenTranslation Jι η κ
+open import Framework.Gentzen.Translation Jι η κ
 
 \end{code}
 
@@ -208,7 +183,7 @@ RΩ δ {n} {w} = Rκ δ ⋆ claim {n} {w}
 R : ℕᴺ → {ρ : Ty} → ⟦ ρ ⟧ʸ → ⟦ ⟨ ρ ⟩ᴶ ⟧ʸ → Set
 R δ = LR._R_
  where
-  import LogicalRelation Jι η κ (Rι δ) (Rη δ) (Rκ δ) as LR
+  import Framework.Gentzen.LogicalRelation Jι η κ (Rι δ) (Rη δ) (Rκ δ) as LR
 
 --
 -- Corollary of the Fundamental Theorem of Logical Relation
@@ -216,7 +191,7 @@ R δ = LR._R_
 Cor[R] : {ρ : Ty} (t : T ε ρ) (δ : ℕᴺ) → R δ ⟦ t ⟧ ⟦ t ᴶ ⟧
 Cor[R] t δ = LR.FTLR t ⋆
  where
-  import LogicalRelation Jι η κ (Rι δ) (Rη δ) (Rκ δ) as LR
+  import Framework.Gentzen.LogicalRelation Jι η κ (Rι δ) (Rη δ) (Rκ δ) as LR
 
 \end{code}
 

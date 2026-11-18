@@ -7,7 +7,7 @@
 
     Chuangjie Xu, May 2020
 
-    Updated in November 2026
+    Updated and restructured in November 2026
 
 
 We implement the reviewer's example of defining moduli of uniform
@@ -23,13 +23,13 @@ Update in November 2026:
 
 {-# OPTIONS --without-K --safe #-}
 
-module UniformContinuityViaGeneralBarRecursion where
+module Applications.Continuity.UniformViaGeneralBarRecursion where
 
 open import Preliminaries
-open import T
-open import TAuxiliaries
-open import GeneralBarRecursion ι public
-open import UniformContinuity using (_is-a-modulus-of-uniform-continuity-of_)
+open import SystemT.Base
+open import SystemT.Auxiliaries
+open import Applications.Continuity.Definitions
+open import Applications.BarRecursion.General ι public
 
 \end{code}
 
@@ -52,8 +52,8 @@ private
  -- G _ = 0
 
  H : {Γ : Cxt} → T Γ (ιᶥ ⇾ ι* ⇾ ιᶥ ⇾ ι)
- H = Lam (Lam (Lam (Suc · (Φ · ν₀ · (ν₂ · Len ν₁)))))
- -- H δ s f = 1 + Φ f (δ | s |)
+ H = Lam (Lam (Lam (Suc · (Ξ · ν₀ · (ν₂ · Len ν₁)))))
+ -- H δ s f = 1 + Ξ f (δ | s |)
 
 𝐌 : T ε (ιᶥ ⇾ ι) → T ε (ιᶥ ⇾ ι)
 𝐌 t = Lam (Lam (ν₁ · G · (H · ν₀) · EmptySeq)) · 𝐠𝐛𝐫 t
@@ -121,11 +121,11 @@ this entry is at most δ (len s), and the induction hypothesis applies.
     descend : s ∉ S → ⟦ t ⟧ α ≡ ⟦ t ⟧ β
     descend nsS = lemma m sn child-bound snα snβ next-agreement
      where
-      max-bound : ⟦ Φ ⟧ (λ i → B (s ✦ i)) (δ (len s)) ≤ m
+      max-bound : ⟦ Ξ ⟧ (λ i → B (s ✦ i)) (δ (len s)) ≤ m
       max-bound = ≤-pred
         (transport (λ k → k ≤ suc m) (pr₂ (gbr s) nsS) Bs≤m)
       child-bound : B sn ≤ m
       child-bound = ≤trans
-        (Φ-spec (α≤δ (len s)) ⋆ (λ i → B (s ✦ i))) max-bound
+        (Ξ-spec (α≤δ (len s)) ⋆ (λ i → B (s ✦ i))) max-bound
 
 \end{code}

@@ -7,6 +7,8 @@
 
     Chuangjie Xu, July 2019
 
+    Restructured in November 2026
+
 References.
 
 □ Tarmo Uustalu.  Monad translating inductive and coinductive types.
@@ -18,9 +20,9 @@ References.
 
 {-# OPTIONS --without-K --safe #-}
 
-open import T
+open import SystemT.Base
 
-module KolmogorovTranslation
+module Framework.Kolmogorov
       (J : Ty → Ty)
       (η : {Γ : Cxt} {σ : Ty} → T Γ (σ ⇾ J σ))
       (κ : {Γ : Cxt} {σ τ : Ty} → T Γ ((σ ⇾ J τ) ⇾ J σ ⇾ J τ))

@@ -7,7 +7,7 @@
 
     Chuangjie Xu, February 2020
 
-    Updated in May 2020
+    Updated in May 2020 and restructured in November 2026
 
 Schwichtenberg [2] shows that the terms of Gödel's System T are closed
 under the rule of Spector's bar recursion of types 0 and 1.  Oliva and
@@ -33,10 +33,10 @@ References
 {-# OPTIONS --without-K --safe #-}
 
 open import Preliminaries
-open import T
-open import TAuxiliaries
+open import SystemT.Base
+open import SystemT.Auxiliaries
 
-module GeneralBarRecursion (σ : Ty) where
+module Applications.BarRecursion.General (σ : Ty) where
 
 \end{code}
 
@@ -147,7 +147,7 @@ private
 -- Instantiate the translation by importing the following module
 -- with the nucleus (Jι, η, κ)
 --
-open import GentzenTranslation Jι η κ public
+open import Framework.Gentzen.Translation Jι η κ public
 
 \end{code}
 
@@ -284,14 +284,14 @@ Thm[GBR] funExt Y = mS , SsY , gbr-correct
   R : ℕᴺ → {ρ : Ty} → ⟦ ρ ⟧ʸ → ⟦ ⟨ ρ ⟩ᴶ ⟧ʸ → Set
   R α = LR._R_
    where
-    import LogicalRelation Jι η κ (Rι α) (Rη α) (Rκ funExt α) as LR
+    import Framework.Gentzen.LogicalRelation Jι η κ (Rι α) (Rη α) (Rκ funExt α) as LR
   --
   -- Use the fundamental theorem of logical relation
   --
   fact : ∀ α → Rι α (⟦ Y ⟧ α) ⟦ Y ᴶ · Ω ⟧
   fact α = LR.FTLR Y ⋆ (RΩ funExt α)
    where
-    import LogicalRelation Jι η κ (Rι α) (Rη α) (Rκ funExt α) as LR
+    import Framework.Gentzen.LogicalRelation Jι η κ (Rι α) (Rη α) (Rκ funExt α) as LR
   mS : monotone ⟦ 𝐒 Y ⟧
   mS = pr₁ (pr₂ (fact 0ʷ))
   SsY : ⟦ 𝐒 Y ⟧ secures ⟦ Y ⟧

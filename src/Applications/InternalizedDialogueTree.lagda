@@ -33,10 +33,10 @@ does not depend on these inductive trees.
 
 {-# OPTIONS --without-K --safe #-}
 
-module InternalizedDialogueTree where
+module Applications.InternalizedDialogueTree where
 
 open import Preliminaries
-open import T
+open import SystemT.Base
 
 \end{code}
 
@@ -208,7 +208,7 @@ no inductive-tree witness is needed for the fundamental theorem.
 
 \begin{code}
 
-open import GentzenTranslation Dᵀ₂ ηᵀ κᵀ
+open import Framework.Gentzen.Translation Dᵀ₂ ηᵀ κᵀ
 
 dialogue-treeᵀ : T ε ((ι ⇾ ι) ⇾ ι) → T ε Dᵀ₂
 dialogue-treeᵀ t = t ᴶ · Ωᵀ
@@ -239,14 +239,14 @@ RΩ α {n} {t} r e = r (λ i → branch (λ j → e j) i)
 R : ℕᴺ → {ρ : Ty} → ⟦ ρ ⟧ʸ → ⟦ ⟨ ρ ⟩ᴶ ⟧ʸ → Set
 R α = LR._R_
  where
-  import LogicalRelation Dᵀ₂ ηᵀ κᵀ
+  import Framework.Gentzen.LogicalRelation Dᵀ₂ ηᵀ κᵀ
     (Rι α) (Rη α) (Rκ α) as LR
 
 Cor[R] : {ρ : Ty} (t : T ε ρ) (α : ℕᴺ)
        → R α ⟦ t ⟧ ⟦ t ᴶ ⟧
 Cor[R] t α = LR.FTLR t ⋆
  where
-  import LogicalRelation Dᵀ₂ ηᵀ κᵀ
+  import Framework.Gentzen.LogicalRelation Dᵀ₂ ηᵀ κᵀ
     (Rι α) (Rη α) (Rκ α) as LR
 
 \end{code}

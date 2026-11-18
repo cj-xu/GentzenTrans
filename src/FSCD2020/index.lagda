@@ -5,7 +5,7 @@
 
                    Chuangjie Xu, August 2019
 
-                   Updated in February 2020
+     Updated in February 2020 and restructured in November 2026
 
 This index documents the Agda development accompanying
 
@@ -37,6 +37,8 @@ All the files are tested in the safe mode of Agda version 2.8.0.
 
 {-# OPTIONS --safe #-}
 
+module FSCD2020.index where
+
 \end{code}
 
 ■ Gödel's System T
@@ -45,8 +47,8 @@ We work with the lambda-calculus version of System T.
 
 \begin{code}
 
-import T
-import TAuxiliaries
+import SystemT.Base
+import SystemT.Auxiliaries
 
 \end{code}
 
@@ -57,7 +59,7 @@ nucleus (Jι, η, κ) which is given as module parameters.
 
 \begin{code}
 
-import GentzenTranslation
+import Framework.Gentzen.Translation
 
 \end{code}
 
@@ -68,7 +70,7 @@ logical relation extending a given relation on natural numbers.
 
 \begin{code}
 
-import LogicalRelation
+import Framework.Gentzen.LogicalRelation
 
 \end{code}
 
@@ -78,7 +80,7 @@ The translation of any term t of T majorizes t itself.
 
 \begin{code}
 
-import Majorizability
+import Applications.Majorizability
 
 \end{code}
 
@@ -90,7 +92,7 @@ of functions of type X → ℕ.
 
 \begin{code}
 
-import Lifting
+import Applications.Lifting
 
 \end{code}
 
@@ -101,7 +103,7 @@ modulus of continuity of f from the translation of f.
 
 \begin{code}
 
-import Continuity
+import Applications.Continuity.PointwiseViaGentzen
 
 \end{code}
 
@@ -113,7 +115,7 @@ uniform continuity of f restricted to inputs pointwise bounded by θ.
 
 \begin{code}
 
-import UniformContinuity
+import Applications.Continuity.UniformViaGentzen
 
 \end{code}
 
@@ -124,7 +126,8 @@ form the translation of Y.
 
 \begin{code}
 
-import GeneralBarRecursion
+import Applications.BarRecursion.General
+import Applications.Continuity.UniformViaGeneralBarRecursion
 
 \end{code}
 
@@ -135,7 +138,7 @@ negative translations due to Kuroda and Kolmogorov.
 
 \begin{code}
 
-import KurodaTranslation
-import KolmogorovTranslation
+import Framework.Kuroda
+import Framework.Kolmogorov
 
 \end{code}

@@ -7,7 +7,7 @@
 
     Chuangjie Xu, July 2019
 
-    Updated in February 2020
+    Updated in February 2020 and restructured in November 2026
 
 We introduce a notion of a nucleus relative to System T, namely a
 monad-like structure without restriction to satisfy the monad laws.
@@ -20,10 +20,10 @@ negative translation of classical logic.
 {-# OPTIONS --without-K --safe #-}
 
 open import Preliminaries
-open import T
-open import TAuxiliaries
+open import SystemT.Base
+open import SystemT.Auxiliaries
 
-module GentzenTranslation
+module Framework.Gentzen.Translation
        (Jι : Ty)
        (η  : {Γ : Cxt} → T Γ (ι ⇾ Jι))
        (κ  : {Γ : Cxt} → T Γ ((ι ⇾ Jι) ⇾ Jι ⇾ Jι))

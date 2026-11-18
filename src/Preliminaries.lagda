@@ -1,17 +1,20 @@
 
- ==================
- =                =
- =  Mini library  =
- =                =
- ==================
+ ===================
+ =                 =
+ =  Preliminaries  =
+ =                 =
+ ===================
 
     Chuangjie Xu
 
-A small library for the Agda development of the paper
+This module collects the basic types and lemmas used throughout the
+development of Gödel's System T, its translations and their applications.
+We begin with identity types and equational reasoning, then define
+dependent pairs, coproducts and the order on natural numbers.
 
-  A Gentzen-style monadic translation of Gödel's System T
-
-by Chuangjie Xu.
+We represent a finite sequence by an infinite sequence together with a
+length. The sequence lemmas describe agreement on initial segments and
+how extending a finite sequence affects that agreement.
 
 \begin{code}
 
@@ -245,6 +248,16 @@ drop-agreement : {A : Set} (k : ℕ) {m : ℕ} {α β : A ᴺ}
                → drop (suc k) α ≡[ m ] drop (suc k) β
 drop-agreement 0       e = e
 drop-agreement (suc k) e = drop-agreement k e
+
+_≤¹_ : ℕᴺ → ℕᴺ → Set
+α ≤¹ β = ∀ i → α i ≤ β i
+
+≤¹refl : ∀{α} → α ≤¹ α
+≤¹refl i = ≤refl
+
+✶≤¹ : {α β : ℕᴺ} {n : ℕ} → α ≤¹ tail β → n ≤ β 0 → n ✶ α ≤¹ β
+✶≤¹ u r  0      = r
+✶≤¹ u r (suc i) = u i
 
 \end{code}
 

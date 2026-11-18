@@ -7,6 +7,8 @@
 
     Chuangjie Xu, February 2020
 
+    Restructured in November 2026
+
 We prove an instance of the Fundamental Theorem of logical relation to
 demonstrate the soundness of the monadic translation in the sense that
 each term of T is related to its translation.
@@ -19,9 +21,9 @@ that it holds for the nucleus, i.e. Rη and Rκ hold.
 {-# OPTIONS --without-K --safe #-}
 
 open import Preliminaries
-open import T
+open import SystemT.Base
 
-module LogicalRelation
+module Framework.Gentzen.LogicalRelation
        (Jι : Ty)
        (η  : {Γ : Cxt} → T Γ (ι ⇾ Jι))
        (κ  : {Γ : Cxt} → T Γ ((ι ⇾ Jι) ⇾ Jι ⇾ Jι))
@@ -31,7 +33,7 @@ module LogicalRelation
            → (∀ i → f i Rι g i) → ∀ {n a} → n Rι a → f n Rι ⟦ κ ⟧ᵐ γ g a)
  where
 
-open import GentzenTranslation Jι η κ
+open import Framework.Gentzen.Translation Jι η κ
 
 \end{code}
 

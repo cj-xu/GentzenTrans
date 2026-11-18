@@ -1,9 +1,9 @@
 
- =========================================
- =                                       =
- =  Application: Modified Bar Recursion  =
- =                                       =
- =========================================
+ ===================================================================
+ =                                                                 =
+ =  Application: Modified bar recursion via general bar recursion  =
+ =                                                                 =
+ ===================================================================
 
     Chuangjie Xu, November 2026
 
@@ -22,13 +22,13 @@ References
 
 {-# OPTIONS --without-K --safe #-}
 
-module ModifiedBarRecursion where
+module Applications.BarRecursion.ModifiedViaGeneral where
 
 open import Preliminaries
-open import T
-open import TAuxiliaries
+open import SystemT.Base
+open import SystemT.Auxiliaries
 
-open import GeneralBarRecursion ι
+open import Applications.BarRecursion.General ι
 
 \end{code}
 

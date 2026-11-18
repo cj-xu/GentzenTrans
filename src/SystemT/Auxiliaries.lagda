@@ -7,16 +7,16 @@
 
     Chuangjie Xu, July 2019
 
-    Updated in February 2020 and November 2026
+    Updated in February 2020 and restructured in November 2026
 
 \begin{code}
 
 {-# OPTIONS --without-K --safe #-}
 
-module TAuxiliaries where
+module SystemT.Auxiliaries where
 
 open import Preliminaries
-open import T
+open import SystemT.Base
 
 \end{code}
 
@@ -299,5 +299,18 @@ s ＠ α = ⟦ Overwrite ⟧ s α
 
 s∋s＠α : (s : ℕ*) (α : ℕᴺ) → s ∋ (s ＠ α)
 s∋s＠α s α i i<|s| = sym (If-spec₁ (<→Lt i<|s|))
+
+\end{code}
+
+■ Pure finite types
+
+\begin{code}
+
+typeᵀ : ℕ → Ty
+typeᵀ 0 = ι
+typeᵀ (suc n) = typeᵀ n ⇾ ι
+
+type : ℕ → Set
+type n = ⟦ typeᵀ n ⟧ʸ
 
 \end{code}

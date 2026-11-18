@@ -1,9 +1,9 @@
 
- ===================================================================
- =                                                                 =
- =  Applying the lifting nucleus: Sequential continuity at type 3  =
- =                                                                 =
- ===================================================================
+ =============================================================
+ =                                                           =
+ =  Application: Sequential continuity at type 3 via lifting =
+ =                                                           =
+ =============================================================
 
     Chuangjie Xu, November 2026
 
@@ -14,22 +14,17 @@ sequentially continuous relative to continuous convergence of type-2 inputs.
 
 {-# OPTIONS --without-K --safe #-}
 
+module Applications.Continuity.SequentialViaLifting where
+
 open import Preliminaries
-open import T
-open import TAuxiliaries
+open import SystemT.Base
+open import SystemT.Auxiliaries
 
 \end{code}
 
 ■ Continuous convergences at pure finite types
 
 \begin{code}
-
-typeᵀ : ℕ → Ty
-typeᵀ 0 = ι
-typeᵀ (suc n) = typeᵀ n ⇾ ι
-
-type : ℕ → Set
-type n = ⟦ typeᵀ n ⟧ʸ
 
 _is-eventually-equal-to_ : (ℕ → ℕ) → ℕ → Set
 α is-eventually-equal-to n = Σ \(m : ℕ) → ∀ {k} → m ≤ k → α k ≡ n
@@ -64,7 +59,7 @@ sequential-continuity-spec = refl
 
 \begin{code}
 
-open import Lifting (typeᵀ 2)
+open import Applications.Lifting (typeᵀ 2)
 
 sc-η : (n : ℕ) → is-sequentially-continuous (λ _ → n)
 sc-η n _ _ _ = 0 , (λ _ → refl)
