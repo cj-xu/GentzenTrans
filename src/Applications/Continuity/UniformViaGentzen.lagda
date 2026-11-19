@@ -177,22 +177,6 @@ RΩ δ {n} {w} = Rκ δ ⋆ claim {n} {w}
   claim : ∀ i → Rι δ (δ i) (⟦ Α ⟧ i)
   claim i = refl , (λ _ _ em → ≡[]-< em ≤refl)
 
---
--- Extend Rι to R for all types of T
---
-R : ℕᴺ → {ρ : Ty} → ⟦ ρ ⟧ʸ → ⟦ ⟨ ρ ⟩ᴶ ⟧ʸ → Set
-R δ = LR._R_
- where
-  import Framework.Gentzen.LogicalRelation Jι η κ (Rι δ) (Rη δ) (Rκ δ) as LR
-
---
--- Corollary of the Fundamental Theorem of Logical Relation
---
-Cor[R] : {ρ : Ty} (t : T ε ρ) (δ : ℕᴺ) → R δ ⟦ t ⟧ ⟦ t ᴶ ⟧
-Cor[R] t δ = LR.FTLR t ⋆
- where
-  import Framework.Gentzen.LogicalRelation Jι η κ (Rι δ) (Rη δ) (Rκ δ) as LR
-
 \end{code}
 
 ■ Theorem: Every closed term t : ℕᴺ ⇾ ℕ of T has a modulus of
@@ -204,10 +188,15 @@ Thm[UC] : (t : T ε (ιᶥ ⇾ ι))
         → M ⟦ t ᴶ · Ω ⟧ is-a-modulus-of-uniform-continuity-of ⟦ t ⟧
 Thm[UC] t = MoUC-is-extensional claim₀ claim₁
  where
+  cor : (α : ℕᴺ) → Rι α (⟦ t ⟧ α) ⟦ t ᴶ · Ω ⟧
+  cor α = LR.FTLR t ⋆ (λ {n} {w} → RΩ α {n} {w})
+   where
+    import Framework.Gentzen.LogicalRelation
+      Jι η κ (Rι α) (Rη α) (Rκ α) as LR
   claim₀ : ∀ α → ⟦ t ⟧ α ≡ V ⟦ t ᴶ · Ω ⟧ α
-  claim₀ α = pr₁ (Cor[R] t α (λ {n} {w} → RΩ α {n} {w}))
+  claim₀ α = pr₁ (cor α)
   claim₁ : M ⟦ t ᴶ · Ω ⟧ is-a-modulus-of-uniform-continuity-of V ⟦ t ᴶ · Ω ⟧
-  claim₁ {δ} = pr₂ (Cor[R] t δ (λ {n} {w} → RΩ δ {n} {w}))
+  claim₁ {δ} = pr₂ (cor δ)
 
 
 Mᵘᶜ : T ε (ιᶥ ⇾ ι)

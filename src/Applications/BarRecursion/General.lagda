@@ -279,19 +279,13 @@ Thm[GBR] : FunExt
 Thm[GBR] funExt Y = mS , SsY , gbr-correct
  where
   --
-  -- Extend Rι to R for all types of T
-  --
-  R : ℕᴺ → {ρ : Ty} → ⟦ ρ ⟧ʸ → ⟦ ⟨ ρ ⟩ᴶ ⟧ʸ → Set
-  R α = LR._R_
-   where
-    import Framework.Gentzen.LogicalRelation Jι η κ (Rι α) (Rη α) (Rκ funExt α) as LR
-  --
   -- Use the fundamental theorem of logical relation
   --
   fact : ∀ α → Rι α (⟦ Y ⟧ α) ⟦ Y ᴶ · Ω ⟧
   fact α = LR.FTLR Y ⋆ (RΩ funExt α)
    where
-    import Framework.Gentzen.LogicalRelation Jι η κ (Rι α) (Rη α) (Rκ funExt α) as LR
+    import Framework.Gentzen.LogicalRelation
+      Jι η κ (Rι α) (Rη α) (Rκ funExt α) as LR
   mS : monotone ⟦ 𝐒 Y ⟧
   mS = pr₁ (pr₂ (fact 0ʷ))
   SsY : ⟦ 𝐒 Y ⟧ secures ⟦ Y ⟧
