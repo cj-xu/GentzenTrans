@@ -22,19 +22,22 @@ open import SystemT.Auxiliaries
 
 \end{code}
 
-■ Continuous convergences at pure finite types
+■ Continuous convergences
 
 \begin{code}
 
-_is-eventually-equal-to_ : (ℕ → ℕ) → ℕ → Set
-α is-eventually-equal-to n = Σ \(m : ℕ) → ∀ {k} → m ≤ k → α k ≡ n
+_is-eventually-equal-to_ : (ℕ → type 0) → type 0 → Set
+ns is-eventually-equal-to n = Σ \(m : ℕ) → ∀ {k} → m ≤ k → ns k ≡ n
 
-converges : (n : ℕ) → (ℕ → type n) → type n → Set
-converges  0      ns n = ns is-eventually-equal-to n
-converges (suc n) fs f
-  = (xs : ℕ → type n) (x : type n)
-  → converges n xs x
-  → (λ i → fs i (xs i)) is-eventually-equal-to (f x)
+_converges-pointwise-to_ : (ℕ → type 1) → type 1 → Set
+αs converges-pointwise-to α
+ = (n : ℕ) → (λ i → αs i n) is-eventually-equal-to (α n)
+
+_converges-continuously-to_ : (ℕ → type 2) → type 2 → Set
+fs converges-continuously-to f
+ = (αs : ℕ → type 1) (α : type 1)
+ → αs converges-pointwise-to α
+ → (λ i → fs i (αs i)) is-eventually-equal-to (f α)
 
 \end{code}
 
@@ -44,13 +47,10 @@ converges (suc n) fs f
 \begin{code}
 
 is-sequentially-continuous : type 3 → Set
-is-sequentially-continuous H = converges 3 (λ _ → H) H
-
-sequential-continuity-spec
-  : {H : type 3}
-  → is-sequentially-continuous H
-  ≡ (∀ fs f → converges 2 fs f → (H ∘ fs) is-eventually-equal-to (H f))
-sequential-continuity-spec = refl
+is-sequentially-continuous H
+ = (fs : ℕ → type 2) (f : type 2)
+ → fs converges-continuously-to f
+ → (λ i → H (fs i)) is-eventually-equal-to (H f)
 
 \end{code}
 
@@ -85,23 +85,14 @@ sc-κ {g} sg {h} sh fs f cf = max m n , proof
 open PredicateUsage is-sequentially-continuous sc-η sc-κ
 
 sc-Ω : Q {typeᵀ 2} ⟦ Ω ⟧
-sc-Ω {u} qu fs f cf = cf as a ca
+sc-Ω {u} qu fs f cf = cf αs α cα
  where
-  as : ℕ → type 1
-  as k n = u (λ _ → n) (fs k)
-  a : type 1
-  a n = u (λ _ → n) f
-  pointwise : (n : ℕ) → (λ k → as k n) is-eventually-equal-to (a n)
-  pointwise n = qu (sc-η n) fs f cf
-  ca : converges 1 as a
-  ca ns n (m , en) = max m l , proof
-   where
-    l : ℕ
-    l = pr₁ (pointwise n)
-    proof : ∀ {k} → max m l ≤ k → as k (ns k) ≡ a n
-    proof {k} p = trans
-      (ap (as k) (en (≤trans (Max-spec₀ m l) p)))
-      (pr₂ (pointwise n) (≤trans (Max-spec₁ m l) p))
+  αs : ℕ → type 1
+  αs k n = u (λ _ → n) (fs k)
+  α : type 1
+  α n = u (λ _ → n) f
+  cα : αs converges-pointwise-to α
+  cα n = qu (sc-η n) fs f cf
 
 Thm[SC3] : FunExt
          → (t : T ε (typeᵀ 3))
