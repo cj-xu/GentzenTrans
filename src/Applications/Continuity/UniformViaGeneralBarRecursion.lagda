@@ -52,8 +52,8 @@ private
  -- G _ = 0
 
  H : {Γ : Cxt} → T Γ (ιᶥ ⇾ ι* ⇾ ιᶥ ⇾ ι)
- H = Lam (Lam (Lam (Suc · (Ξ · ν₀ · (ν₂ · Len ν₁)))))
- -- H δ s f = 1 + Ξ f (δ | s |)
+ H = Lam (Lam (Lam (Suc · (MaxUpTo · ν₀ · (ν₂ · Len ν₁)))))
+ -- H δ s f = 1 + MaxUpTo f (δ | s |)
 
 𝐌 : T ε (ιᶥ ⇾ ι) → T ε (ιᶥ ⇾ ι)
 𝐌 t = Lam (Lam (ν₁ · G · (H · ν₀) · EmptySeq)) · 𝐠𝐛𝐫 t
@@ -121,11 +121,11 @@ this entry is at most δ (len s), and the induction hypothesis applies.
     descend : s ∉ S → ⟦ t ⟧ α ≡ ⟦ t ⟧ β
     descend nsS = lemma m sn child-bound snα snβ next-agreement
      where
-      max-bound : ⟦ Ξ ⟧ (λ i → B (s ✦ i)) (δ (len s)) ≤ m
+      max-bound : ⟦ MaxUpTo ⟧ (λ i → B (s ✦ i)) (δ (len s)) ≤ m
       max-bound = ≤-pred
         (transport (λ k → k ≤ suc m) (pr₂ (gbr s) nsS) Bs≤m)
       child-bound : B sn ≤ m
       child-bound = ≤trans
-        (Ξ-spec (α≤δ (len s)) ⋆ (λ i → B (s ✦ i))) max-bound
+        (MaxUpTo-spec (α≤δ (len s)) ⋆ (λ i → B (s ✦ i))) max-bound
 
 \end{code}
