@@ -137,21 +137,22 @@ Min-zero-cases 0 (suc m) e f = 𝟘-elim (f refl)
 \begin{code}
 
 --
--- Ξ g n  is the maximum of g(i) for all i ≤ n.
+-- MaxUpTo g n  is the maximum of g(i) for all i ≤ n.
 --
-Ξ : {Γ : Cxt} → T Γ (ιᶥ ⇾ ι ⇾ ι)
-Ξ = Lam (Rec · (ν₀ · Zero) · Lam (Lam (Max · ν₀ · (ν₂ · (Suc · ν₁)))))
+MaxUpTo : {Γ : Cxt} → T Γ (ιᶥ ⇾ ι ⇾ ι)
+MaxUpTo = Lam (Rec · (ν₀ · Zero) · Lam (Lam (Max · ν₀ · (ν₂ · (Suc · ν₁)))))
 -- i.e.
--- Ξ g  0      = g 0
--- Ξ g (suc n) = max (Ξ g n) (g (suc n))
+-- MaxUpTo g  0      = g 0
+-- MaxUpTo g (suc n) = max (MaxUpTo g n) (g (suc n))
 
-Ξ-spec : {i j : ℕ} → i ≤ j
-       → {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ)
-       → (α : ℕᴺ) → α i ≤ ⟦ Ξ ⟧ᵐ γ α j
-Ξ-spec {i} {0} ≤zero _ α = ≤refl
-Ξ-spec {i} {suc j} r γ α with ≤-cases r
-... | inl  refl      = Max-spec₁ (⟦ Ξ ⟧ᵐ γ α j) (α (suc j))
-... | inr (≤suc i≤j) = ≤trans (Ξ-spec i≤j γ α) (Max-spec₀ (⟦ Ξ ⟧ᵐ γ α j) (α (suc j)))
+MaxUpTo-spec
+  : {i j : ℕ} → i ≤ j
+  → {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ)
+  → (α : ℕᴺ) → α i ≤ ⟦ MaxUpTo ⟧ᵐ γ α j
+MaxUpTo-spec {i} {0} ≤zero _ α = ≤refl
+MaxUpTo-spec {i} {suc j} r γ α with ≤-cases r
+... | inl  refl      = Max-spec₁ (⟦ MaxUpTo ⟧ᵐ γ α j) (α (suc j))
+... | inr (≤suc i≤j) = ≤trans (MaxUpTo-spec i≤j γ α) (Max-spec₀ (⟦ MaxUpTo ⟧ᵐ γ α j) (α (suc j)))
 
 \end{code}
 
@@ -270,11 +271,22 @@ Lm[n≤m→n-m=0] (suc n) (suc m) (≤suc r) = Lm[n≤m→n-m=0] n m r
 ι* : Ty
 ι* = ιᶥ ⊠ ι
 
-^_^ : {Γ : Cxt} → T Γ ι* → T Γ (ι ⇾ ι)
-^ t ^ = Pr1 · t
-
 Len : {Γ : Cxt} → T Γ ι* → T Γ ι
 Len t = Pr2 · t
+
+Pad : {Γ : Cxt} → T Γ (ι* ⇾ ιᶥ)
+Pad = Lam (Rec · Lam (Lam Zero)
+               · Lam (Lam (Lam
+                   (Rec · (ν₀ · Zero)
+                        · Lam (Lam (ν₃ · (ν₂ ○ Suc) · ν₁)))))
+               · Len ν₀ · (Pr1 · ν₀))
+
+Pad-correct : {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ) (s : ℕ*)
+            → ⟦ Pad ⟧ᵐ γ s ≡ s ^
+Pad-correct γ s = refl
+
+^_^ : {Γ : Cxt} → T Γ ι* → T Γ ιᶥ
+^ t ^ = Pad · t
 
 Append : {Γ : Cxt} → T Γ (ι* ⇾ ι ⇾ ι*)
 Append = Lam (Lam (Rec · Lam (Lam (Pair · (Rec · ν₀ · Lam (Lam ν₄)) · (Suc · Zero)))
@@ -282,23 +294,26 @@ Append = Lam (Lam (Rec · Lam (Lam (Pair · (Rec · ν₀ · Lam (Lam ν₄)) ·
                            (Pair · (Rec · (ν₁ · Zero)
                                         · Lam (Lam (Pr1 · (ν₄ · (ν₃ ○ Suc) · ν₂) · ν₁)))
                                  · (Suc · (Suc · ν₃))))))
-                       · Len ν₁ · ^ ν₁ ^ · ν₀))
+                       · Len ν₁ · (Pr1 · ν₁) · ν₀))
+
+Append-correct : {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ) (s : ℕ*) (n : ℕ)
+               → ⟦ Append ⟧ᵐ γ s n ≡ s ✦ n
+Append-correct γ s n = refl
 
 _★_ : {Γ : Cxt} → T Γ ι* → T Γ ι → T Γ ι*
 t ★ u = Append · t · u
 
 Overwrite : {Γ : Cxt} → T Γ (ι* ⇾ ιᶥ ⇾ ιᶥ)
-Overwrite = Lam (Lam (Lam (If · (Lt · ν₀ · Len ν₂)
-                              · (^ ν₂ ^ · ν₀)
-                              · (ν₁ · ν₀))))
+Overwrite = Lam (Lam
+  (Rec · Lam (Lam ν₀)
+       · Lam (Lam (Lam (Lam
+           (Rec · (ν₁ · Zero)
+                · Lam (Lam (ν₄ · (ν₃ ○ Suc) · (ν₂ ○ Suc) · ν₁))))))
+       · Len ν₁ · (Pr1 · ν₁) · ν₀))
 
-infixl 10 _＠_
-
-_＠_ : ℕ* → ℕᴺ → ℕᴺ
-s ＠ α = ⟦ Overwrite ⟧ s α
-
-s∋s＠α : (s : ℕ*) (α : ℕᴺ) → s ∋ (s ＠ α)
-s∋s＠α s α i i<|s| = sym (If-spec₁ (<→Lt i<|s|))
+Overwrite-correct : {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ) (s : ℕ*) (α : ℕᴺ)
+                  → ⟦ Overwrite ⟧ᵐ γ s α ≡ s ＠ α
+Overwrite-correct γ s α = refl
 
 \end{code}
 

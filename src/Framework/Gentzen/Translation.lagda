@@ -60,8 +60,8 @@ module Framework.Gentzen.Translation
 KE : {ρ : Ty} {Γ : Cxt}
    → T Γ ((ι ⇾ ⟨ ρ ⟩ᴶ) ⇾ Jι ⇾ ⟨ ρ ⟩ᴶ)
 KE {ι}     = κ
-KE {τ ⊠ ρ} = Lam (Lam (Pair · (KE · Lam (Pr1 · (ν₂ · ν₀)) · ν₀)
-                            · (KE · Lam (Pr2 · (ν₂ · ν₀)) · ν₀)))
+KE {τ ⊠ ρ} = Lam (Lam (Pair · (KE · (Pr1 ○ ν₁) · ν₀)
+                            · (KE · (Pr2 ○ ν₁) · ν₀)))
 KE {τ ⇾ ρ} = Lam (Lam (Lam (KE · Lam (ν₃ · ν₀ · ν₁) · ν₁)))
 
 infix 60 _ᴶ

@@ -298,11 +298,49 @@ _∋_ : {A : Set} → A * → A ᴺ → Set
     (λ j q → p (suc j) (≤suc q)) e i
     (transport (λ k → i < k) (len✦-suc ((γ ∘ suc) , l)) r)
 
-_^ : {A : Set} → A * → A ᴺ
-_^ = pr₁
+pad : ℕ → ℕᴺ → ℕᴺ
+pad = rec (λ α i → 0)
+          (λ n h α → rec (α 0) (λ i r → h (α ∘ suc) i))
 
-s∋sn^ : {A : Set} (s : A *) {a : A} → s ∋ ((s ✦ a) ^)
-s∋sn^ (α , suc l)  0       _         = refl
-s∋sn^ (α , suc l) (suc i) (≤suc i<l) = s∋sn^ (α ∘ suc , l) i i<l
+_^ : ℕ* → ℕᴺ
+(α , l) ^ = pad l α
+
+s∋s^ : (s : ℕ*) → s ∋ (s ^)
+s∋s^ (α , suc l)  0      (≤suc r) = refl
+s∋s^ (α , suc l) (suc i) (≤suc r) = s∋s^ ((α ∘ suc) , l) i r
+
+s∋sn^ : (s : ℕ*) {n : ℕ} → s ∋ ((s ✦ n) ^)
+s∋sn^ (α , suc l)        0      (≤suc r) = refl
+s∋sn^ (α , suc (suc l)) (suc i) (≤suc r) = s∋sn^ (α ∘ suc , suc l) i r
+
+
+infixl 10 _＠_
+
+_＠_ : ℕ* → ℕᴺ → ℕᴺ
+(α , l) ＠ β =
+  rec (λ α β → β)
+      (λ n h α β → rec (α 0) (λ i r → h (α ∘ suc) (β ∘ suc) i))
+      l α β
+
+s∋s＠α : (s : ℕ*) (α : ℕᴺ) → s ∋ (s ＠ α)
+s∋s＠α (α , suc l) β  0       _       = refl
+s∋s＠α (α , suc l) β (suc i) (≤suc p) = s∋s＠α (α ∘ suc , l) (β ∘ suc) i p
+
+\end{code}
+
+■ Inductively defined lists
+
+\begin{code}
+
+infixr 5 _∷_
+data List {a} (A : Set a) : Set a where
+  []  : List A
+  _∷_ : (x : A) (xs : List A) → List A
+
+{-# BUILTIN LIST List #-}
+
+listrec : {A B : Set} → B → (A → List A → B → B) → List A → B
+listrec b h []       = b
+listrec b h (a ∷ xs) = h a xs (listrec b h xs)
 
 \end{code}

@@ -251,7 +251,8 @@ RΩ funExt α {n} {w} = Rκ funExt α ⋆ claim {n} {w}
    k<|sm| : k < len (s ✦ m)
    k<|sm| = ≤trans k<|s| (≤trans (≤suc' ≤refl) (≤refl' (len✦-suc s)))
   SΑsVΑ : (k : ℕ) → 𝑆 (⟦ Α ⟧ k) secures 𝑉 (⟦ Α ⟧ k)
-  SΑsVΑ k s k<|s| α sα = sα k (Lt→< k<|s|)
+  SΑsVΑ k s k<|s| α sα = trans (sym (s∋s^ s k (Lt→< k<|s|)))
+                               (sα k (Lt→< k<|s|))
   claim : ∀ i → Rι α (α i) (⟦ Α ⟧ i)
   claim i = refl , mSΑ i , SΑsVΑ i , Ψ-GBR funExt i
 
