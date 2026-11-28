@@ -1,3 +1,5 @@
 *.agdai
 MAlonzo/**
 .DS_Store
+/src/Experiments/
+/html/
