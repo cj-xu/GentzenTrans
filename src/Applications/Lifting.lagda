@@ -22,7 +22,7 @@ Update in June 2026:
   its genericity using function extensionality.
 
 - Showed how to transfer predicates from the lifted representations fᴶΩ
-  to T-definable functionals f : X → ℕ.
+  to T-definable functionals f : ⟦ X ⟧ʸ → ℕ.
 
 \begin{code}
 
@@ -31,6 +31,7 @@ Update in June 2026:
 open import Preliminaries
 open import SystemT.Base
 open import SystemT.Auxiliaries
+import Framework.Gentzen.LogicalRelation as GentzenLR
 
 \end{code}
 
@@ -39,7 +40,7 @@ open import SystemT.Auxiliaries
 Fix a finite type X and define Jι = X ⇾ ι.  The unit η embeds a natural
 number as the corresponding constant function on X.  The operation κ is
 pointwise: given g : ι ⇾ Jι and f : Jι, it first computes f x and then
-evaluates g (f x) at the same x.  These three terms instantiate the
+evaluates g (f x) at the same x.  These three components instantiate the
 Gentzen translation with the reader nucleus.
 
 \begin{code}
@@ -72,17 +73,17 @@ finite types.
 
 \begin{code}
 
--- Base case: observe a translated natural number at x.
 Rι : ⟦ X ⟧ʸ → ⟦ ι ⟧ʸ → ⟦ Jι ⟧ʸ → Set
 Rι x n f = n ≡ f x
 
--- η preserves Rι because constant functions evaluate to their value.
+module LR (x : ⟦ X ⟧ʸ) = GentzenLR Jι η κ (Rι x)
+open import Framework.Gentzen.Genericity Jι η κ X Rι
+
 Rη : (x : ⟦ X ⟧ʸ)
    → {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ) (n : ⟦ ι ⟧ʸ)
    → Rι x n (⟦ η ⟧ᵐ γ n)
 Rη x _ n = refl
 
--- κ preserves Rι by transporting along the equality supplied for h.
 Rκ : (x : ⟦ X ⟧ʸ)
    → {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ) {f : ⟦ ι ⇾ ι ⟧ʸ} {g : ⟦ ι ⇾ Jι ⟧ʸ}
    → (∀ i → Rι x (f i) (g i))
@@ -90,19 +91,17 @@ Rκ : (x : ⟦ X ⟧ʸ)
    → Rι x (f n) (⟦ κ ⟧ᵐ γ g h)
 Rκ x _ {f} {g} ζ {n} {h} θ = transport (λ z → f n ≡ g z x) θ (ζ n)
 
--- Extend Rι to all finite types using the fundamental logical relation.
 R : ⟦ X ⟧ʸ → {ρ : Ty}
   → ⟦ ρ ⟧ʸ → ⟦ ⟨ ρ ⟩ᴶ ⟧ʸ → Set
-R x = LR._R_
+R x = _R_
  where
-  import Framework.Gentzen.LogicalRelation Jι η κ (Rι x) (Rη x) (Rκ x) as LR
+  open LR x using (_R_)
 
--- Extend the same relation to source and translated environments.
 Rˣ : (x : ⟦ X ⟧ʸ) {Γ : Cxt}
    → ⟦ Γ ⟧ˣ → ⟦ ⟪ Γ ⟫ᴶ ⟧ˣ → Set
-Rˣ x = LR._Rˣ_
+Rˣ x = _Rˣ_
  where
-  import Framework.Gentzen.LogicalRelation Jι η κ (Rι x) (Rη x) (Rκ x) as LR
+  open LR x using (_Rˣ_)
 
 \end{code}
 
@@ -110,16 +109,11 @@ Rˣ x = LR._Rˣ_
 
 A term ω : Xᴶ may depend on variables in any context.  The predicate
 is-generic requires ω to be related to every input x under every
-assignment to its context.  In Cor, ω has context Γᴶ so that it can be
-applied to fᴶ.  If the source and translated assignments are related
-at x, the fundamental theorem then gives pointwise agreement between
-an open f : X ⇾ ι and fᴶ ω.
+assignment to its context.  In Cor, ω has context Γᴶ so that fᴶ can be
+applied to it.  Under assignments related at x, the interpretations
+of f and fᴶ ω agree at x.
 
 \begin{code}
-
-is-generic : {Γ : Cxt} → T Γ ⟨ X ⟩ᴶ → Set
-is-generic {Γ} ω = (γ : ⟦ Γ ⟧ˣ) → (x : ⟦ X ⟧ʸ)
-                 → R x x (⟦ ω ⟧ᵐ γ)
 
 Cor : {Γ : Cxt}
     → (ω : T ⟪ Γ ⟫ᴶ ⟨ X ⟩ᴶ)
@@ -129,9 +123,9 @@ Cor : {Γ : Cxt}
     → {γ : ⟦ Γ ⟧ˣ} {δ : ⟦ ⟪ Γ ⟫ᴶ ⟧ˣ}
     → Rˣ x γ δ
     → ⟦ f ⟧ᵐ γ x ≡ ⟦ f ᴶ · ω ⟧ᵐ δ x
-Cor ω generic f x {δ = δ} ξ = LR.FTLR f ξ (generic δ x)
+Cor ω generic f x {δ = δ} ξ = FTLR f ξ (generic δ x)
  where
-  import Framework.Gentzen.LogicalRelation Jι η κ (Rι x) (Rη x) (Rκ x) as LR
+  open LR.Soundness x (Rη x) (Rκ x) using (FTLR)
 
 \end{code}
 
@@ -171,7 +165,7 @@ expected generic oracle: given a query f : X ⇾ ι and an input
 α : ι ⇾ ι, it returns α (f α).
 
 To prove genericity, fix x : ⟦ ι ⇾ ι ⟧ʸ.  The function clause of R asks
-us to send related inputs to related outputs.  Thus, from Rι n x h,
+us to send related inputs to related outputs.  Thus, from Rι x n h,
 which unfolds to n ≡ h x, we must prove x n ≡ x (h x).  This follows
 by congruence of the fixed function x.  No equality between functions is
 constructed, so function extensionality is unnecessary.
@@ -296,16 +290,15 @@ R→down funExt {γ = γ} (σ ⊠ τ) x {b = b} θ =
   ap² _,_ (R→down funExt {γ = (γ , b) , x} σ x (pr₁ θ))
           (R→down funExt {γ = (γ , b) , x} τ x (pr₂ θ))
 
-R[Ω] : FunExt → {Γ : Cxt} → is-generic (Ω {Γ})
+R[Ω] : FunExt
+     → {Γ : Cxt} → is-generic (Ω {Γ})
 R[Ω] funExt δ x = R[up] funExt X x (λ a → a)
 
 \end{code}
 
 ■ Representation using the uniform generic element
 
-The context-polymorphic Ω satisfies is-generic by R[Ω].  Applying Cor
-to this proof gives the representation for open terms in arbitrary
-related contexts.
+The context-polymorphic Ω satisfies is-generic by R[Ω].
 
 \begin{code}
 
@@ -352,7 +345,7 @@ property transfers to P ⟦ f ⟧.
 This direct unary proof could also be recovered from the binary logical
 relation used above by taking its base relation to be Qι n h = P h,
 independent of n.  The unary presentation is kept because the lifted
-predicate Q and the final theorem P[T-definable] are more readable in
+predicate Q and the final theorem predicate-transfer are more readable in
 this form.
 
 \begin{code}
@@ -371,7 +364,7 @@ module PredicateUsage
  Q {σ ⇾ τ} f = ∀ {x} → Q x → Q (f x)
  Q {σ ⊠ τ} (a , b) = Q a × Q b
 
- -- Pointwise lifting of Q to translated environments. 
+ -- Pointwise lifting of Q to translated environments.
  Qˣ : {Γ : Cxt} (δ : ⟦ ⟪ Γ ⟫ᴶ ⟧ˣ) → Set
  Qˣ {ε} ⋆ = 𝟙
  Qˣ {Γ ₊ σ} (δ , a) = Qˣ δ × Q a
@@ -410,11 +403,11 @@ module PredicateUsage
    claim (suc i) = ξ (Pη i) (claim i)
 
  -- Predicate-transfer theorem for all closed T-definable functionals.
- P[T-definable] : FunExt
-                → Q ⟦ Ω ⟧
-                → (f : T ε (X ⇾ ι))
-                → P ⟦ f ⟧
- P[T-definable] funExt qΩ f = transport P (sym e) P[fᴶΩ]
+ predicate-transfer
+   : FunExt
+   → Q ⟦ Ω ⟧
+   → (f : T ε (X ⇾ ι)) → P ⟦ f ⟧
+ predicate-transfer funExt qΩ f = transport P (sym e) P[fᴶΩ]
   where
    P[fᴶΩ] : P ⟦ f ᴶ · Ω ⟧
    P[fᴶΩ] = FTQ f ⋆ qΩ

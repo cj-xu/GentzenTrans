@@ -22,7 +22,7 @@ open import SystemT.Auxiliaries
 
 \end{code}
 
-■ Continuous convergences
+■ Continuous convergence
 
 \begin{code}
 
@@ -94,9 +94,10 @@ sc-Ω {u} qu fs f cf = cf αs α cα
   cα : αs converges-pointwise-to α
   cα n = qu (sc-η n) fs f cf
 
-Thm[SC3] : FunExt
-         → (t : T ε (typeᵀ 3))
-         → is-sequentially-continuous ⟦ t ⟧
-Thm[SC3] funext = P[T-definable] funext sc-Ω
+sequential-continuity-at-type-3
+ : FunExt
+ → (t : T ε (typeᵀ 3))
+ → is-sequentially-continuous ⟦ t ⟧
+sequential-continuity-at-type-3 fe = predicate-transfer fe sc-Ω
 
 \end{code}

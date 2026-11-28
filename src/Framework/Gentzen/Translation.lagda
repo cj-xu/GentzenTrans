@@ -10,9 +10,9 @@
     Updated in February 2020 and restructured in November 2026
 
 We introduce a notion of a nucleus relative to System T, namely a
-monad-like structure without restriction to satisfy the monad laws.
-Then we present a syntactic translation of T into itself parametrized
-by a nucleus. The translation structurally corresponds to Gentzen's
+monad-like structure that need not satisfy the monad laws. Then we
+present a syntactic translation of T into itself parametrized by a
+nucleus. The translation structurally corresponds to Gentzen's
 negative translation of classical logic.
 
 \begin{code}

@@ -20,7 +20,7 @@ Abstract.
 
 We introduce a syntactic translation of Gödel’s System T parametrized
 by a weak notion of a monad, and prove a corresponding fundamental
-theorem of logical relation. Our translation structurally corresponds
+theorem of logical relations. Our translation structurally corresponds
 to Gentzen’s negative translation of classical logic. By instantiating
 the monad and the base case of the logical relation, we reveal various
 properties and structures of T-definable functionals such as
@@ -35,7 +35,7 @@ All the files are tested in the safe mode of Agda version 2.8.0.
 
 \begin{code}
 
-{-# OPTIONS --safe #-}
+{-# OPTIONS --without-K --safe #-}
 
 module FSCD2020.index where
 
@@ -63,7 +63,7 @@ import Framework.Gentzen.Translation
 
 \end{code}
 
-■ Fundamental theorem of logical relation
+■ Fundamental theorem of logical relations
 
 We show that every term is related to its translation w.r.t. the
 logical relation extending a given relation on natural numbers.
@@ -122,7 +122,7 @@ import Applications.Continuity.UniformViaGentzen
 ■ Example V: general bar recursion
 
 Given Y : ℕᴺ → ℕ in T, we obtain a general-bar-recursion functional
-form the translation of Y.
+from the translation of Y.
 
 \begin{code}
 

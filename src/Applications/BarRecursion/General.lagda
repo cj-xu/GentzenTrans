@@ -32,11 +32,13 @@ References
 
 {-# OPTIONS --without-K --safe #-}
 
-open import Preliminaries
 open import SystemT.Base
-open import SystemT.Auxiliaries
 
 module Applications.BarRecursion.General (σ : Ty) where
+
+open import Preliminaries
+open import SystemT.Auxiliaries
+import Framework.Gentzen.LogicalRelation as GentzenLR
 
 \end{code}
 
@@ -165,16 +167,16 @@ open import Framework.Gentzen.Translation Jι η κ public
         · Lam (Lam (Lam (Lam (Lam (ν₁ · ν₀ · Lam (ν₄ · ν₃ · ν₂ · (ν₁ ★ ν₀)))))))
 --       (λ n   z    G    H    s . H    s   (λ x . z   G   H    (s ★ x)))
 -- φ(0,G,H)   = G
--- φ(n+1,G,H) = λs.H(s,λx.φ(n,G,H,s⋆x))
+-- φ(n+1,G,H) = λs.H(s,λx.φ(n,G,H,s✦x))
 
 --
 -- Bar-recursion functional for constant terminating functional λα.k
 --
 Ψ : {Γ : Cxt}
   → T Γ (ι ⇾ (ι* ⇾ σ) ⇾ (ι* ⇾ (ι ⇾ σ) ⇾ σ) ⇾ ι* ⇾ σ)
-Ψ = Lam (Lam (Lam (Lam (If · (Lt · ν₃ · Len ν₀)
+Ψ = Lam (Lam (Lam (Lam (If · (Lt · ν₃ · (Len ·  ν₀))
                            · (ν₂ · ν₀)
-                           · (φ · (Minus · (Suc · ν₃) · Len ν₀) · ν₂ · ν₁ · ν₀)))))
+                           · (φ · (Minus · (Suc · ν₃) · (Len ·  ν₀)) · ν₂ · ν₁ · ν₀)))))
 -- Ψ(n,G,H,s) = G(s)              if |s|>n
 -- Ψ(n,G,H,s) = φ(n+1-|s|,G,H,s)  otherwise
 
@@ -193,7 +195,7 @@ open import Framework.Gentzen.Translation Jι η κ public
 Α : {Γ : Cxt} → T Γ (ι ⇾ Jι)
 Α = Lam ⟨ Lam (ν₀ · ν₁)
  -- λn. ⟨ λ α . α n
-        , Lam (Lt · ν₁ · Len ν₀)
+        , Lam (Lt · ν₁ · (Len ·  ν₀))
  --     , λ s . Lt   n    |s|
         , Ψ · ν₀ ⟩
  --     , Ψ n ⟩
@@ -210,38 +212,24 @@ open import Framework.Gentzen.Translation Jι η κ public
 
 \begin{code}
 
---
--- Base case of the logical relation
---
 Rι : ℕᴺ → ⟦ ι ⟧ʸ → ⟦ Jι ⟧ʸ → Set
 Rι α n (Y , S , B) = n ≡ Y α × monotone S × S secures Y × GBR S B
 
---
--- η preserves the logical relation
---
-Rη : (α : ℕᴺ)
-   → {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ) (n : ⟦ ι ⟧ʸ) → Rι α n (⟦ η ⟧ᵐ γ n)
+module LR (α : ℕᴺ) = GentzenLR Jι η κ (Rι α)
+open import Framework.Gentzen.Genericity Jι η κ ιᶥ Rι
+
+Rη : (α : ℕᴺ) → LR.η-compatible α
 Rη α γ n = refl , (λ _ _ z → z) , (λ _ _ _ _ → refl) , (λ _ _ _ → (λ _ → refl) , λ ())
 
---
--- κ preserves the logical relation
---
 Rκ : FunExt
-   → (α : ℕᴺ)
-   → {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ) {f : ⟦ ι ⇾ ι ⟧ʸ} {g : ⟦ ι ⇾ Jι ⟧ʸ}
-   → (∀ i → Rι α (f i) (g i))
-   → ∀ {n w} → Rι α n w → Rι α (f n) (⟦ κ ⟧ᵐ γ g w)
+   → (α : ℕᴺ) → LR.κ-compatible α
 --
 -- The proof is given in the appendix.
 --
 
---
--- Ω preserves the logical relation
---
 RΩ : FunExt
-   → (α : ℕᴺ)
-   → ∀{n w} → Rι α n w → Rι α (α n) (⟦ Ω ⟧ w)
-RΩ funExt α {n} {w} = Rκ funExt α ⋆ claim {n} {w}
+   → {Γ : Cxt} → is-generic (Ω {Γ})
+RΩ funExt γ α {n} {w} = Rκ funExt α γ claim {n} {w}
  where
   mSΑ : (k : ℕ) → monotone (𝑆 (⟦ Α ⟧ k))
   mSΑ k s m r = <→Lt k<|sm|
@@ -258,11 +246,12 @@ RΩ funExt α {n} {w} = Rκ funExt α ⋆ claim {n} {w}
 
 \end{code}
 
-■ For any closed term Y : ℕᴺ → ℕ of T,
+■ For any closed term Y of type ιᶥ ⇾ ι,
 
-  1. S(YᴶΩ) is a monotone predicate securing Y, and
+  1. ⟦S(YᴶΩ)⟧ is a monotone predicate securing ⟦Y⟧, and
 
-  2. B(YᴶΩ) is a functional of general bar recursion.
+  2. ⟦B(YᴶΩ)⟧ satisfies the general bar-recursion equations for
+     this predicate.
 
 \begin{code}
 
@@ -272,21 +261,18 @@ RΩ funExt α {n} {w} = Rκ funExt α ⋆ claim {n} {w}
 𝐠𝐛𝐫 : T ε (ιᶥ ⇾ ι) → T ε ((ι* ⇾ σ) ⇾ (ι* ⇾ (ι ⇾ σ) ⇾ σ) ⇾ ι* ⇾ σ)
 𝐠𝐛𝐫 Y = B (Y ᴶ · Ω)
 
-Thm[GBR] : FunExt
-         → (Y : T ε (ιᶥ ⇾ ι))
-         →   monotone ⟦ 𝐒 Y ⟧
-           × ⟦ 𝐒 Y ⟧ secures ⟦ Y ⟧
-           × GBR ⟦ 𝐒 Y ⟧ ⟦ 𝐠𝐛𝐫 Y ⟧
-Thm[GBR] funExt Y = mS , SsY , gbr-correct
+gbr-extraction-correct
+  : FunExt
+  → (Y : T ε (ιᶥ ⇾ ι))
+  →   monotone ⟦ 𝐒 Y ⟧
+  × ⟦ 𝐒 Y ⟧ secures ⟦ Y ⟧
+  × GBR ⟦ 𝐒 Y ⟧ ⟦ 𝐠𝐛𝐫 Y ⟧
+gbr-extraction-correct funExt Y = mS , SsY , gbr-correct
  where
-  --
-  -- Use the fundamental theorem of logical relation
-  --
   fact : ∀ α → Rι α (⟦ Y ⟧ α) ⟦ Y ᴶ · Ω ⟧
-  fact α = LR.FTLR Y ⋆ (RΩ funExt α)
+  fact α = FTLR Y ⋆ (RΩ funExt ⋆ α)
    where
-    import Framework.Gentzen.LogicalRelation
-      Jι η κ (Rι α) (Rη α) (Rκ funExt α) as LR
+    open LR.Soundness α (Rη α) (Rκ funExt α) using (FTLR)
   mS : monotone ⟦ 𝐒 Y ⟧
   mS = pr₁ (pr₂ (fact 0ʷ))
   SsY : ⟦ 𝐒 Y ⟧ secures ⟦ Y ⟧
@@ -334,16 +320,16 @@ Thm[GBR] funExt Y = mS , SsY , gbr-correct
     E4 = If-spec₀ k≮|s|
     claim₀ : len s ≡ k
            → ⟦ Ψ ⟧ k G H s ≡ H s (λ m → ⟦ Ψ ⟧ k G H (s ✦ m))
-    claim₀ |s|≡n = begin
+    claim₀ |s|≡k = begin
       ⟦ Ψ ⟧ k G H s ≡⟨ E4 ⟩  ⟦ φ ⟧ (suc k - len s) G H s
                     ≡⟨ † ⟩   ⟦ φ ⟧ 1 G H s
                     ≡⟨ E4' ⟩ H s (λ m → ⟦ Ψ ⟧ k G H (s ✦ m)) ∎
      where
       † : ⟦ φ ⟧ (suc k - len s) G H s ≡ ⟦ φ ⟧ 1 G H s
       † = ap (λ x → ⟦ φ ⟧ x G H s)
-             (trans (ap (suc k -_) |s|≡n) (Lm[n+1-n≡1] k))
+             (trans (ap (suc k -_) |s|≡k) (Lm[n+1-n≡1] k))
       k+1≡|sm| : {m : ℕ} → suc k ≡ len (s ✦ m)
-      k+1≡|sm| = trans (sym (ap suc |s|≡n)) (len✦-suc s)
+      k+1≡|sm| = trans (sym (ap suc |s|≡k)) (len✦-suc s)
       k<|sm| : {m : ℕ} → ¬ (lt k (len (s ✦ m)) ≡ 0)
       k<|sm| {m} = <→Lt (≤refl' k+1≡|sm|)
       fact : (m : ℕ) → ⟦ Ψ ⟧ k G H (s ✦ m) ≡ G (s ✦ m)
@@ -374,24 +360,16 @@ Thm[GBR] funExt Y = mS , SsY , gbr-correct
       □ :  H s (λ m → ⟦ φ ⟧ (k+1-|s|-1) G H (s ✦ m))
          ≡ H s (λ m → ⟦ φ ⟧ (suc k - len (s ✦ m)) G H (s ✦ m))
       □ = ap (H s) (funExt ex)
-      n≮|sm| : {m : ℕ} → lt k (len (s ✦ m)) ≡ 0
-      n≮|sm| = transport (λ x → lt k x ≡ 0) (len✦-suc s) (≤→Lt |s|<k)
+      k≮|sm| : {m : ℕ} → lt k (len (s ✦ m)) ≡ 0
+      k≮|sm| = transport (λ x → lt k x ≡ 0) (len✦-suc s) (≤→Lt |s|<k)
       ex' : (m : ℕ)
           → ⟦ Ψ ⟧ k G H (s ✦ m) ≡ ⟦ φ ⟧ (suc k - len (s ✦ m)) G H (s ✦ m)
-      ex' m = If-spec₀ n≮|sm|
+      ex' m = If-spec₀ k≮|sm|
       E4' :  H s (λ m → ⟦ φ ⟧ (suc k - len (s ✦ m)) G H (s ✦ m))
            ≡ H s (λ m → ⟦ Ψ ⟧ k G H (s ✦ m))
       E4' = sym (ap (H s) (funExt ex'))
 
 
---
--- κ preserves the logical relation
---
--- Rκ : FunExt
---    → (α : ℕᴺ)
---    → {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ) {f : ⟦ ι ⇾ ι ⟧ʸ} {g : ⟦ ι ⇾ Jι ⟧ʸ}
---    → (∀ i → Rι α (f i) (g i))
---    → ∀ {n w} → Rι α n w → Rι α (f n) (⟦ κ ⟧ᵐ γ g w)
 Rκ funExt α γ {f} {g} ζ {n} {Y , S , B} (n≡Yα , mS , SsY , gbr) = e , mSκ , SκsVκ , gbrκ
  where
   e₀ : f n ≡ pr₁ (g n) α

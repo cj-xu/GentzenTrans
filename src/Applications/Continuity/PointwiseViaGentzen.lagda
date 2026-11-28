@@ -9,8 +9,9 @@
 
     Updated in February 2020 and restructured in November 2026
 
-We construct moduli of continuity via the monadic translation and then
-verify the correctness via the Fundamental Theorem of Logical Relation.
+We use the monadic translation to extract moduli of pointwise
+continuity for T-definable functions and the fundamental theorem
+of logical relations to verify the extracted moduli.
 
 \begin{code}
 
@@ -22,6 +23,7 @@ open import Preliminaries
 open import SystemT.Base
 open import SystemT.Auxiliaries
 open import Applications.Continuity.Definitions
+import Framework.Gentzen.LogicalRelation as GentzenLR
 
 \end{code}
 
@@ -69,32 +71,24 @@ open import Framework.Gentzen.Translation Jι η κ
 
 \begin{code}
 
-V M : (ℕᴺ → ℕ) × (ℕᴺ → ℕ) → ℕᴺ → ℕ
-V = pr₁  -- value component
-M = pr₂  -- modulus component
+private
+ V M : (ℕᴺ → ℕ) × (ℕᴺ → ℕ) → ℕᴺ → ℕ
+ V = pr₁  -- value component
+ M = pr₂  -- modulus component
 
---
--- Base case of the logical relation
---
 Rι : ℕᴺ → ⟦ ι ⟧ʸ → ⟦ Jι ⟧ʸ → Set
 Rι α n w =  (n ≡ V w α)
          -- n is the value of w at α
           × (∀ β → α ≡[ M w α ] β → V w α ≡ V w β)
          -- M(w,α) is a modulus of continuity of V(w) at α
 
---
--- η preserves the logical relation
---
-Rη : (α : ℕᴺ)
-   → {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ) (n : ⟦ ι ⟧ʸ) → Rι α n (⟦ η ⟧ᵐ γ n)
+module LR (α : ℕᴺ) = GentzenLR Jι η κ (Rι α)
+open import Framework.Gentzen.Genericity Jι η κ ιᶥ Rι
+
+Rη : (α : ℕᴺ) → LR.η-compatible α
 Rη α _ n = refl , (λ _ _ → refl)
 
---
--- κ preserves the logical relation
---
-Rκ : (α : ℕᴺ)
-   → {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ) {f : ⟦ ι ⇾ ι ⟧ʸ} {g : ⟦ ι ⇾ Jι ⟧ʸ}
-   → (∀ i → Rι α (f i) (g i)) → ∀ {n w} → Rι α n w → Rι α (f n) (⟦ κ ⟧ᵐ γ g w)
+Rκ : (α : ℕᴺ) → LR.κ-compatible α
 Rκ α γ {f} {g} ζ {n} {w} (e , prf) = trans e₀ e₁ , goal
  where
   e₀ : f n ≡ V (g n) α
@@ -120,36 +114,34 @@ Rκ α γ {f} {g} ζ {n} {w} (e , prf) = trans e₀ e₁ , goal
     claim₂ : V (g (V w α)) β ≡ V (g (V w β)) β
     claim₂ = ap (λ x → V (g x) β) claim₁
 
---
--- Ω preserves the logical relation
---
-RΩ : (α : ℕᴺ)
-   → ∀{n w} → Rι α n w → Rι α (α n) (⟦ Ω ⟧ w)
- -- i.e.  R α α ⟦ Ω ⟧
-RΩ α {n} {w} = Rκ α ⋆ claim {n} {w}
+RΩ : {Γ : Cxt} → is-generic (Ω {Γ})
+RΩ _ α {n} {w} = Rκ α ⋆ claim {n} {w}
  where
   claim : ∀ i → Rι α (α i) (⟦ Α ⟧ i)
   claim i = refl , (λ β em → ≡[]-< em ≤refl)
 
 \end{code}
 
-■ Theorem: Every closed term t : ℕᴺ ⇾ ℕ of T has a modulus of
-           continuity given by the term M(tᴶΩ).
+■ Theorem: Every closed term t : ιᶥ ⇾ ι of T has a modulus of
+           continuity given by the term Pr2(tᴶΩ).
 
 \begin{code}
 
-Thm[Cont] : (t : T ε (ιᶥ ⇾ ι))
-          → M ⟦ t ᴶ · Ω ⟧ is-a-modulus-of-continuity-of ⟦ t ⟧
-Thm[Cont] t = MoC-is-extensional claim₀ claim₁
+𝐌 : T ε (ιᶥ ⇾ ι) → T ε (ιᶥ ⇾ ι)
+𝐌 t = Pr2 · (t ᴶ · Ω)
+
+pointwise-modulus-correct
+ : (t : T ε (ιᶥ ⇾ ι))
+ → ⟦ 𝐌 t ⟧ is-a-modulus-of-pointwise-continuity-of ⟦ t ⟧
+pointwise-modulus-correct t = MoC-is-extensional claim₀ claim₁
  where
   cor : (α : ℕᴺ) → Rι α (⟦ t ⟧ α) ⟦ t ᴶ · Ω ⟧
-  cor α = LR.FTLR t ⋆ (λ {n} {w} → RΩ α {n} {w})
+  cor α = FTLR t ⋆ (λ {n} {w} → RΩ ⋆ α {n} {w})
    where
-    import Framework.Gentzen.LogicalRelation
-      Jι η κ (Rι α) (Rη α) (Rκ α) as LR
+    open LR.Soundness α (Rη α) (Rκ α) using (FTLR)
   claim₀ : ∀ α → ⟦ t ⟧ α ≡ V ⟦ t ᴶ · Ω ⟧ α
   claim₀ α = pr₁ (cor α)
-  claim₁ : M ⟦ t ᴶ · Ω ⟧ is-a-modulus-of-continuity-of V ⟦ t ᴶ · Ω ⟧
+  claim₁ : M ⟦ t ᴶ · Ω ⟧ is-a-modulus-of-pointwise-continuity-of V ⟦ t ᴶ · Ω ⟧
   claim₁ α = pr₂ (cor α)
 
 \end{code}

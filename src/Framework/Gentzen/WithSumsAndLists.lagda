@@ -73,13 +73,13 @@ Pair ᴶ = Pair
 Pr1 ᴶ = Pr1
 Pr2 ᴶ = Pr2
 Zero ᴶ = η · Zero
-Suc ᴶ = κ · Lam (η · (Suc · ν₀))
-Rec {ρ} ᴶ = Lam (Lam (KE ρ · (Rec · ν₁ · Lam (ν₁ · (η · ν₀)))))
-Inj1 ᴶ = Lam (η · (Inj1 · ν₀))
-Inj2 ᴶ = Lam (η · (Inj2 · ν₀))
+Suc ᴶ = κ · (η ○ Suc)
+Rec {ρ} ᴶ = Lam (Lam (KE ρ · (Rec · ν₁ · (ν₀ ○ η))))
+Inj1 ᴶ = η ○ Inj1
+Inj2 ᴶ = η ○ Inj2
 Case {ρ = ρ} ᴶ = Lam (Lam (KE ρ · (Case · ν₁ · ν₀)))
 Nil ᴶ = η · Nil
-Cons ᴶ = Lam (κ · Lam (η · (Cons · ν₁ · ν₀)))
+Cons ᴶ = Lam (κ · (η ○ (Cons · ν₀)))
 LRec {ρ = ρ} ᴶ =
   Lam (Lam (KE ρ · (LRec · ν₁ · Lam (Lam (ν₂ · ν₁ · (η · ν₀))))))
 
@@ -114,7 +114,8 @@ module LogicalRelation
 
 ■ Lifted relation between ⟦ dataᵀ D ⟧ʸ and ⟦ ⟨ D ⟩ᴰ ⟧ʸ
 
-The unit η and the functions supplied to κ take inputs of type
+In the compatibility conditions, the interpretation of η and the
+function supplied to the interpretation of κ take inputs of type
 ⟦ ⟨ D ⟩ᴰ ⟧ʸ, before the outer J is applied.  To compare these
 inputs with source data, we lift R through the data constructors,
 obtaining S.
@@ -152,6 +153,15 @@ obtaining S.
    → (∀ {x a} → S D x a → R (dataᵀ E) (f x) (g a))
    → ∀ {x w} → R (dataᵀ D) x w → R (dataᵀ E) (f x) (⟦ κ ⟧ᵐ γ g w)
 
+ R[KE] : κ-compatible
+       → {D : DataTy} (ρ : Ty) → ∀ {Γ} {γ : ⟦ Γ ⟧ˣ}
+       → {f : ⟦ dataᵀ D ⟧ʸ → ⟦ ρ ⟧ʸ} {g : ⟦ ⟨ D ⟩ᴰ ⟧ʸ → ⟦ ⟨ ρ ⟩ᴶ ⟧ʸ}
+       → (∀ {x a} → S D x a → R ρ (f x) (g a))
+       → ∀ {x w} → R (dataᵀ D) x w → R ρ (f x) (⟦ KE ρ ⟧ᵐ γ g w)
+ R[KE] Rκ (dataᵀ E) = Rκ
+ R[KE] Rκ (σ ⊠ τ) p r = R[KE] Rκ σ (pr₁ ∘ p) r , R[KE] Rκ τ (pr₂ ∘ p) r
+ R[KE] Rκ (σ ⇾ τ) p r q = R[KE] Rκ τ (λ s → p s q) r
+
 \end{code}
 
 ■ Fundamental theorem of logical relations
@@ -159,14 +169,6 @@ obtaining S.
 \begin{code}
 
  module Soundness (Rη : η-compatible) (Rκ : κ-compatible) where
-
-  R[KE] : {D : DataTy} (ρ : Ty) → ∀ {Γ} {γ : ⟦ Γ ⟧ˣ}
-        → {f : ⟦ dataᵀ D ⟧ʸ → ⟦ ρ ⟧ʸ} {g : ⟦ ⟨ D ⟩ᴰ ⟧ʸ → ⟦ ⟨ ρ ⟩ᴶ ⟧ʸ}
-        → (∀ {x a} → S D x a → R ρ (f x) (g a))
-        → ∀ {x w} → R (dataᵀ D) x w → R ρ (f x) (⟦ KE ρ ⟧ᵐ γ g w)
-  R[KE] (dataᵀ E) = Rκ
-  R[KE] (σ ⊠ τ) p r = R[KE] σ (pr₁ ∘ p) r , R[KE] τ (pr₂ ∘ p) r
-  R[KE] (σ ⇾ τ) p r q = R[KE] τ (λ s → p s q) r
 
   FTLR : ∀ {Γ ρ} (t : T Γ ρ) {γ : ⟦ Γ ⟧ˣ} {δ : ⟦ ⟪ Γ ⟫ᴶ ⟧ˣ}
        → Rˣ Γ γ δ → R ρ (⟦ t ⟧ᵐ γ) (⟦ t ᴶ ⟧ᵐ δ)
@@ -178,7 +180,7 @@ obtaining S.
   FTLR Pr2 _ = pr₂
   FTLR Zero _ = Rη refl
   FTLR Suc _ = Rκ (λ e → Rη (ap suc e))
-  FTLR (Rec {ρ}) _ {b} {b'} rb {h} {h'} rh = R[KE] ρ step
+  FTLR (Rec {ρ}) _ {b} {b'} rb {h} {h'} rh = R[KE] Rκ ρ step
    where
     step : {i j : ℕ} → i ≡ j
          → R ρ (rec b h i) (rec b' (λ k → h' (⟦ η ⟧ᵐ _ k)) j)
@@ -187,7 +189,7 @@ obtaining S.
   FTLR Inj1 _ θ = Rη (left θ)
   FTLR Inj2 _ θ = Rη (right θ)
   FTLR (Case {σ} {τ} {ρ}) _ {f} {f'} rf {g} {g'} rg =
-    R[KE] ρ branches
+    R[KE] Rκ ρ branches
    where
     branches : ∀ {x a} → S (sum σ τ) x a
              → R ρ (case f g x) (case f' g' a)
@@ -197,7 +199,7 @@ obtaining S.
   FTLR (Cons {σ}) _ rx =
     Rκ (λ rs → Rη (cons rx rs))
   FTLR (LRec {σ} {ρ}) _ {b} {b'} rb {h} {h'} rh =
-    R[KE] ρ inner
+    R[KE] Rκ ρ inner
    where
     inner : ∀ {xs as} → S (list σ) xs as
           → R ρ (listrec b h xs) (listrec b' (λ z zs → h' z (⟦ η ⟧ᵐ _ zs)) as)

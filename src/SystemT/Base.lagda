@@ -21,8 +21,8 @@ open import Preliminaries
 
 ■ Types, contexts and terms of T
 
-Here we work with the lambda-calculus version of System T, and with de
-Bruijn indices instead of variables.
+Here we work with the lambda-calculus version of System T, and
+present variables by de Bruijn indices.
 
 \begin{code}
 
@@ -31,30 +31,18 @@ infixr 31 _⊠_
 infixl 20 _₊_
 infixl 20 _·_
 
---
--- finite types
---
 data Ty : Set where
  ι   : Ty
  _⇾_ _⊠_ : Ty → Ty → Ty
 
---
--- contexts as finite lists of types
---
 data Cxt : Set where
  ε   : Cxt
  _₊_ : Cxt → Ty → Cxt
 
---
--- indices of types/variables in context
---
 data ∥_∈_∥ (σ : Ty) : Cxt → Set where
  zero : {Γ : Cxt} → ∥ σ ∈ (Γ ₊ σ) ∥
  suc  : {τ : Ty} {Γ : Cxt} → ∥ σ ∈ Γ ∥ → ∥ σ ∈ Γ ₊ τ ∥
 
---
--- terms
---
 data T (Γ : Cxt) : Ty → Set where
  Var  : {σ : Ty} → ∥ σ ∈ Γ ∥ → T Γ σ
  Lam  : {σ τ : Ty} → T (Γ ₊ σ) τ → T Γ (σ ⇾ τ)
@@ -101,10 +89,6 @@ _₍_₎ : {Γ : Cxt} {ρ : Ty} → ⟦ Γ ⟧ˣ → ∥ ρ ∈ Γ ∥ → ⟦ �
 ⟦_⟧ : {ρ : Ty} → T ε ρ → ⟦ ρ ⟧ʸ
 ⟦ t ⟧ = ⟦ t ⟧ᵐ ⋆
 
---
--- An (Agda) element a is "T-definable" if one can find a closed T
--- term whose standard interpretation is a.
---
 T-definable : {ρ : Ty} → ⟦ ρ ⟧ʸ → Set
 T-definable {ρ} a = Σ \(t : T ε ρ) → ⟦ t ⟧ ≡ a
 

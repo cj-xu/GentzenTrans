@@ -9,8 +9,10 @@
 
     Updated in February 2020 and restructured in November 2026
 
-We construct majorants of T-terms via the monadic translation whose
-correctness is guaranteed by the Fundamental Theorem of Logical Relation.
+We use the monadic translation to construct majorants for System T
+terms. The fundamental theorem of logical relations shows that the
+interpretation of each closed term is majorized by that of its
+translation.
 
 References
 
@@ -69,26 +71,18 @@ open import Framework.Gentzen.Translation Jι η κ
 
 \begin{code}
 
---
--- The base case is just the usual ordering on ℕ
---
 _⊲ι_ : ⟦ ι ⟧ʸ → ⟦ Jι ⟧ʸ → Set
 _⊲ι_ = _≤_
 
---
--- η preserves the logical relation
---
 ⊲η : {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ) (n : ⟦ ι ⟧ʸ) → n ⊲ι ⟦ η ⟧ᵐ γ n
 ⊲η _ n = ≤refl
 
---
--- κ preserves the logical relation
---
 ⊲κ : {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ) {f : ⟦ ι ⇾ ι ⟧ʸ} {g : ⟦ ι ⇾ Jι ⟧ʸ}
    → (∀ i → f i ⊲ι g i) → ∀ {n a} → n ⊲ι a → f n ⊲ι ⟦ κ ⟧ᵐ γ g a
 ⊲κ γ {f} {g} ζ {x} θ = ≤trans (ζ x) (κ-spec θ γ g)
 
-open import Framework.Gentzen.LogicalRelation Jι η κ _⊲ι_ ⊲η ⊲κ
+open import Framework.Gentzen.LogicalRelation Jι η κ _⊲ι_
+open Soundness ⊲η ⊲κ
 
 --
 -- Howard's majorizability relation extends ≤ to all types of T

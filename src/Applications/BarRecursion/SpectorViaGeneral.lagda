@@ -10,7 +10,7 @@
     Updated in May 2020 and November 2026, and
     restructured in November 2026
 
-We formalize Oliba and Steila's conversion from general bar recursion
+We formalize Oliva and Steila's conversion from general bar recursion
 to Spector's bar recursion [1].
 
 
@@ -72,7 +72,7 @@ otherwise, it applies H s to the continuation.
       ⇾ (ι* ⇾ σ)           -- base functional for Spector's bar recursion
       ⇾ (ι* ⇾ (ι ⇾ σ) ⇾ σ) -- step functional for Spector's bar recursion
       ⇾ ι* ⇾ (ι ⇾ σ) ⇾ σ)  -- step functional for general bar recursion
-𝐻 = Lam (Lam (Lam (Lam (Lam (If · (Minus · Len ν₁ · (ν₄ · ^ ν₁ ^))
+𝐻 = Lam (Lam (Lam (Lam (Lam (If · (Minus · (Len ·  ν₁) · (ν₄ · ^ ν₁ ^))
                                 · (ν₃ · ν₁)
                                 · (ν₂ · ν₁ · ν₀))))))
 
@@ -164,9 +164,10 @@ Spector bar recursor is T-definable.
 𝐬𝐛𝐫 : T ε (ιᶥ ⇾ ι) → T ε ((ι* ⇾ σ) ⇾ (ι* ⇾ (ι ⇾ σ) ⇾ σ) ⇾ ι* ⇾ σ)
 𝐬𝐛𝐫 Y = Φ · Y · (𝐠𝐛𝐫 Y)
 
-thm[SBR] : FunExt
-         → (Y : T ε (ιᶥ ⇾ ι))
-         → SBR ⟦ Y ⟧ ⟦ 𝐬𝐛𝐫 Y ⟧
-thm[SBR] fe Y = Φ-spec fe ⟦ Y ⟧ ⟦ 𝐒 Y ⟧ ⟦ 𝐠𝐛𝐫 Y ⟧ (Thm[GBR] fe Y)
+sbr-correct : FunExt
+            → (Y : T ε (ιᶥ ⇾ ι))
+            → SBR ⟦ Y ⟧ ⟦ 𝐬𝐛𝐫 Y ⟧
+sbr-correct fe Y
+ = Φ-spec fe ⟦ Y ⟧ ⟦ 𝐒 Y ⟧ ⟦ 𝐠𝐛𝐫 Y ⟧ (gbr-extraction-correct fe Y)
 
 \end{code}

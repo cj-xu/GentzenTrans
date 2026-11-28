@@ -38,7 +38,6 @@ t ○ u = Comp · t · u
 
 \begin{code}
 
--- Infinite sequences of natural numbers
 ιᶥ : Ty
 ιᶥ = ι ⇾ ι
 
@@ -53,14 +52,14 @@ t ☆ u = Cons · t · u
  where
   Cons : {Γ : Cxt} → T Γ (ι ⇾ ιᶥ ⇾ ιᶥ)
   Cons = Lam (Lam (Rec · ν₁ · Lam (Lam (ν₂ · ν₁))))
-  -- λ n u → rec a (λ i _ → u i)
+  -- λ n u → rec n (λ i _ → u i)
   -- i.e.
   -- Cons n u  0      = n
   -- Cons n u (suc i) = u i
 
 \end{code}
 
-■ Max and Min fucntions
+■ Max and Min functions
 
 \begin{code}
 
@@ -136,9 +135,6 @@ Min-zero-cases 0 (suc m) e f = 𝟘-elim (f refl)
 
 \begin{code}
 
---
--- MaxUpTo g n  is the maximum of g(i) for all i ≤ n.
---
 MaxUpTo : {Γ : Cxt} → T Γ (ιᶥ ⇾ ι ⇾ ι)
 MaxUpTo = Lam (Rec · (ν₀ · Zero) · Lam (Lam (Max · ν₀ · (ν₂ · (Suc · ν₁)))))
 -- i.e.
@@ -271,15 +267,15 @@ Lm[n≤m→n-m=0] (suc n) (suc m) (≤suc r) = Lm[n≤m→n-m=0] n m r
 ι* : Ty
 ι* = ιᶥ ⊠ ι
 
-Len : {Γ : Cxt} → T Γ ι* → T Γ ι
-Len t = Pr2 · t
+Len : {Γ : Cxt} → T Γ (ι* ⇾ ι)
+Len = Pr2
 
 Pad : {Γ : Cxt} → T Γ (ι* ⇾ ιᶥ)
 Pad = Lam (Rec · Lam (Lam Zero)
                · Lam (Lam (Lam
                    (Rec · (ν₀ · Zero)
                         · Lam (Lam (ν₃ · (ν₂ ○ Suc) · ν₁)))))
-               · Len ν₀ · (Pr1 · ν₀))
+               · (Len · ν₀) · (Pr1 · ν₀))
 
 Pad-correct : {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ) (s : ℕ*)
             → ⟦ Pad ⟧ᵐ γ s ≡ s ^
@@ -294,7 +290,7 @@ Append = Lam (Lam (Rec · Lam (Lam (Pair · (Rec · ν₀ · Lam (Lam ν₄)) ·
                            (Pair · (Rec · (ν₁ · Zero)
                                         · Lam (Lam (Pr1 · (ν₄ · (ν₃ ○ Suc) · ν₂) · ν₁)))
                                  · (Suc · (Suc · ν₃))))))
-                       · Len ν₁ · (Pr1 · ν₁) · ν₀))
+                       · (Len ·  ν₁) · (Pr1 · ν₁) · ν₀))
 
 Append-correct : {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ) (s : ℕ*) (n : ℕ)
                → ⟦ Append ⟧ᵐ γ s n ≡ s ✦ n
@@ -309,7 +305,7 @@ Overwrite = Lam (Lam
        · Lam (Lam (Lam (Lam
            (Rec · (ν₁ · Zero)
                 · Lam (Lam (ν₄ · (ν₃ ○ Suc) · (ν₂ ○ Suc) · ν₁))))))
-       · Len ν₁ · (Pr1 · ν₁) · ν₀))
+       · (Len ·  ν₁) · (Pr1 · ν₁) · ν₀))
 
 Overwrite-correct : {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ) (s : ℕ*) (α : ℕᴺ)
                   → ⟦ Overwrite ⟧ᵐ γ s α ≡ s ＠ α

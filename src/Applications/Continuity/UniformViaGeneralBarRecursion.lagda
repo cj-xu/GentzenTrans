@@ -33,10 +33,12 @@ open import Applications.BarRecursion.General ι public
 
 \end{code}
 
-For a fixed bound δ, evaluating `𝐌 t δ` starts the recursion at the
-empty sequence. If the current sequence secures `t`, the base case
-returns 0. Otherwise, the step takes one plus the maximum of the
-recursive bounds for the possible next inputs i ≤ δ(length s).
+For a fixed pointwise bound on the input sequences, we compute
+the modulus by bar recursion starting at the empty sequence.
+If the current prefix belongs to the extracted predicate, the
+recursion returns zero. Otherwise, it considers each next entry
+allowed by the bound and returns one plus the largest result
+computed recursively for these extensions.
 
 \begin{code}
 
@@ -52,7 +54,7 @@ private
  -- G _ = 0
 
  H : {Γ : Cxt} → T Γ (ιᶥ ⇾ ι* ⇾ ιᶥ ⇾ ι)
- H = Lam (Lam (Lam (Suc · (MaxUpTo · ν₀ · (ν₂ · Len ν₁)))))
+ H = Lam (Lam (Lam (Suc · (MaxUpTo · ν₀ · (ν₂ · (Len ·  ν₁))))))
  -- H δ s f = 1 + MaxUpTo f (δ | s |)
 
 𝐌 : T ε (ιᶥ ⇾ ι) → T ε (ιᶥ ⇾ ι)
@@ -61,7 +63,7 @@ private
 
 \end{code}
 
-The proof below assumes function extensionality through Thm[GBR].
+The proof below assumes function extensionality through gbr-extraction-correct.
 
 For a prefix s, let B s be the same bar-recursive bound started at s.
 If B s ≤ m, two inputs bounded by δ that extend s and agree on the next
@@ -72,10 +74,11 @@ this entry is at most δ (len s), and the induction hypothesis applies.
 
 \begin{code}
 
-𝐌-correct : FunExt
-          → (t : T ε (ιᶥ ⇾ ι))
-          → ⟦ 𝐌 t ⟧ is-a-modulus-of-uniform-continuity-of ⟦ t ⟧
-𝐌-correct fe t {δ} {α} {β} α≤δ _ agreement =
+uniform-modulus-correct
+ : FunExt
+ → (t : T ε (ιᶥ ⇾ ι))
+ → ⟦ 𝐌 t ⟧ is-a-modulus-of-uniform-continuity-of ⟦ t ⟧
+uniform-modulus-correct fe t {δ} {α} {β} α≤δ _ agreement =
   lemma (B ⟨⟩) ⟨⟩ ≤refl (λ i ()) (λ i ()) agreement
  where
   S : ℕ* → ℕ
@@ -83,11 +86,11 @@ this entry is at most δ (len s), and the induction hypothesis applies.
   B : ℕ* → ℕ
   B = ⟦ 𝐠𝐛𝐫 t ⟧ ⟦ G ⟧ (⟦ H ⟧ δ)
   SsY : S secures ⟦ t ⟧
-  SsY = pr₁ (pr₂ (Thm[GBR] fe t))
+  SsY = pr₁ (pr₂ (gbr-extraction-correct fe t))
   gbr : (s : ℕ*)
       → (s ∈ ⟦ 𝐒 t ⟧ → B s ≡ ⟦ G ⟧ s)
       × (s ∉ ⟦ 𝐒 t ⟧ → B s ≡ ⟦ H ⟧ δ s (λ n → B (s ✦ n)))
-  gbr = pr₂ (pr₂ (Thm[GBR] fe t)) ⟦ G ⟧ (⟦ H ⟧ δ)
+  gbr = pr₂ (pr₂ (gbr-extraction-correct fe t)) ⟦ G ⟧ (⟦ H ⟧ δ)
 
   secured : (s : ℕ*) → s ∈ S → s ∋ α → s ∋ β
           → ⟦ t ⟧ α ≡ ⟦ t ⟧ β

@@ -49,6 +49,7 @@ module Applications.InternalizedDialogueTree where
 open import Preliminaries
 open import SystemT.Base
 open import SystemT.Auxiliaries
+import Framework.Gentzen.LogicalRelation as GentzenLR
 
 \end{code}
 
@@ -118,9 +119,8 @@ Dᵀ ρ = (ι ⇾ ρ) ⇾ ((ι ⇾ ρ) ⇾ ι ⇾ ρ) ⇾ ρ
 
 \end{code}
 
-We specialise the result type `ρ` to `(ι ⇾ ι) ⇾ ι` so that
-a Church-encoded tree can be interpreted as a functional on
-oracles.
+We specialize ρ to (ι ⇾ ι) ⇾ ι so that applying an encoded tree to
+the evaluation algebras yields a functional on input sequences.
 
 We write `Dᵀ₂` for the resulting Church-encoded tree type.
 
@@ -238,18 +238,13 @@ oracle gives the original value.
 Rι : ℕᴺ → ℕ → ⟦ Dᵀ₂ ⟧ʸ → Set
 Rι α n t = Σ \(d : D) → (t encodes d) × (n ≡ eval d α)
 
-Rη : (α : ℕᴺ)
-   → {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ) (n : ℕ)
-   → Rι α n (⟦ ηᵀ ⟧ᵐ γ n)
+module LR (α : ℕᴺ) = GentzenLR Dᵀ₂ ηᵀ κᵀ (Rι α)
+open import Framework.Gentzen.Genericity Dᵀ₂ ηᵀ κᵀ ιᶥ Rι
+
+Rη : (α : ℕᴺ) → LR.η-compatible α
 Rη α γ n = η n , enc-η n , refl
 
-Rκ : (α : ℕᴺ)
-   → {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ)
-   → {f : ℕ → ℕ} {g : ℕ → ⟦ Dᵀ₂ ⟧ʸ}
-   → (∀ i → Rι α (f i) (g i))
-   → ∀ {n : ℕ} {t : ⟦ Dᵀ₂ ⟧ʸ}
-   → Rι α n t
-   → Rι α (f n) (⟦ κᵀ ⟧ᵐ γ g t)
+Rκ : (α : ℕᴺ) → LR.κ-compatible α
 Rκ α γ {f} {g} ζ {n} (d , enc , eq) = κ ζ₀ d , enc-κ ζ₁ enc , eq'
  where
   ζ₀ : ℕ → D
@@ -267,10 +262,8 @@ Rκ α γ {f} {g} ζ {n} (d , enc , eq) = κ ζ₀ d , enc-κ ζ₁ enc , eq'
   eq' : f n ≡ eval (κ ζ₀ d) α
   eq' = trans e₀ (trans e₁ (sym e₂))
 
-RΩ : (α : ℕᴺ)
-   → ∀ {n t} → Rι α n t
-   → Rι α (α n) (⟦ Ωᵀ ⟧ t)
-RΩ α = Rκ α ⋆ fact
+RΩ : {Γ : Cxt} → is-generic (Ωᵀ {_} {Γ})
+RΩ _ α = Rκ α ⋆ fact
  where
   fact : (i : ℕ) → Rι α (α i) (⟦ βᵀ ⟧ ⟦ ηᵀ ⟧ i)
   fact i = β η i , enc-β enc-η i , refl
@@ -292,10 +285,9 @@ Thm[InternalDialogue]
 Thm[InternalDialogue] t = d , enc , eq
  where
   cor : (α : ℕᴺ) → Rι α (⟦ t ⟧ α) ⟦ dialogue-treeᵀ t ⟧
-  cor α = LR.FTLR t ⋆ (RΩ α)
+  cor α = FTLR t ⋆ (RΩ ⋆ α)
    where
-    import Framework.Gentzen.LogicalRelation Dᵀ₂ ηᵀ κᵀ
-      (Rι α) (Rη α) (Rκ α) as LR
+    open LR.Soundness α (Rη α) (Rκ α) using (FTLR)
   d : D
   d = pr₁ (cor 0ʷ)
   enc : ⟦ dialogue-treeᵀ t ⟧ encodes d

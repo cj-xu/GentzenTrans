@@ -22,6 +22,9 @@ how extending a finite sequence affects that agreement.
 
 module Preliminaries where
 
+open import Agda.Primitive using (_⊔_)
+
+
 \end{code}
 
 ■ Identity types
@@ -83,7 +86,7 @@ f ∘ g = λ a → f (g a)
 --
 -- (dependent) pairs
 --
-record Σ {A : Set} (B : A → Set) : Set where
+record Σ {ℓ ℓ'} {A : Set ℓ} (B : A → Set ℓ') : Set (ℓ ⊔ ℓ') where
  constructor _,_
  field
   pr₁ : A
@@ -93,7 +96,7 @@ open Σ public
 
 infixr 1 _×_ _,_
 
-_×_ : Set → Set → Set
+_×_ : ∀ {ℓ ℓ'} → Set ℓ → Set ℓ' → Set (ℓ ⊔ ℓ')
 A × B = Σ \(_ : A) → B
 
 --

@@ -17,12 +17,12 @@ open import Preliminaries
 
 \begin{code}
 
-_is-a-modulus-of-continuity-of_ : (ℕᴺ → ℕ) → (ℕᴺ → ℕ) → Set
-φ is-a-modulus-of-continuity-of f = ∀ α β → α ≡[ φ α ] β → f α ≡ f β
+_is-a-modulus-of-pointwise-continuity-of_ : (ℕᴺ → ℕ) → (ℕᴺ → ℕ) → Set
+φ is-a-modulus-of-pointwise-continuity-of f = ∀ α β → α ≡[ φ α ] β → f α ≡ f β
 
 MoC-is-extensional : {f g φ : ℕᴺ → ℕ} → (∀ α → f α ≡ g α)
-                   → φ is-a-modulus-of-continuity-of g
-                   → φ is-a-modulus-of-continuity-of f
+                   → φ is-a-modulus-of-pointwise-continuity-of g
+                   → φ is-a-modulus-of-pointwise-continuity-of f
 MoC-is-extensional {f} {g} {φ} ex mcg α β em = begin
   f α ≡⟨ ex α ⟩
   g α ≡⟨ mcg α β em ⟩

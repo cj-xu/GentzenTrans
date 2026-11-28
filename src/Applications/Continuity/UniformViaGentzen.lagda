@@ -9,10 +9,10 @@
 
     Updated in February 2020 and restructured in November 2026
 
-For T-definable function f : ℕᴺ → ℕ we construct a modulus of uniform
-continuity, that is, a function φ : ℕᴺ → ℕ such that f is uniformly
-continuous on the subspace {α : ℕᴺ | ∀i(αi ≤ δi)} with a modulus φ(δ)
-for each sequence δ.
+Given a T-definable function f : ℕᴺ → ℕ, we construct a T-definable
+function φ : ℕᴺ → ℕ such that, for each δ : ℕᴺ, φ(δ) is a modulus of
+uniform continuity for f on the subspace of sequences bounded
+pointwise by δ.
 
 \begin{code}
 
@@ -24,11 +24,12 @@ open import Preliminaries
 open import SystemT.Base
 open import SystemT.Auxiliaries
 open import Applications.Continuity.Definitions
+import Framework.Gentzen.LogicalRelation as GentzenLR
 
 \end{code}
 
 ■ If f is uniformly continuous on Δ = {α : ℕᴺ | ∀i(αi ≤ δi)} with a
-  modulus m, then it has a maximum image RangeBound(m,f,δ) on Δ.
+  modulus m, then RangeBound(m,f,δ) bounds the values of f on Δ.
 
 \begin{code}
 
@@ -114,28 +115,19 @@ private
  V = pr₁  -- value component
  M = pr₂  -- modulus component
 
---
--- Base case of the logical relation
---
 Rι : ℕᴺ → ⟦ ι ⟧ʸ → ⟦ Jι ⟧ʸ → Set
 Rι δ n w =  (n ≡ V w δ)
          -- n is the value of w at δ
           × (∀{α β} → α ≤¹ δ → β ≤¹ δ → α ≡[ M w δ ] β → V w α ≡ V w β)
          -- M(w,δ) is a modulus of uniform continuity of V(w) on inputs bounded by δ
 
---
--- η preserves the logical relation
---
-Rη : (δ : ℕᴺ)
-   → {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ) (n : ⟦ ι ⟧ʸ) → Rι δ n (⟦ η ⟧ᵐ γ n)
+module LR (δ : ℕᴺ) = GentzenLR Jι η κ (Rι δ)
+open import Framework.Gentzen.Genericity Jι η κ ιᶥ Rι
+
+Rη : (δ : ℕᴺ) → LR.η-compatible δ
 Rη δ _ n = refl , (λ _ _ _ → refl)
 
---
--- κ preserves the logical relation
---
-Rκ : (δ : ℕᴺ)
-   → {Γ : Cxt} (γ : ⟦ Γ ⟧ˣ) {f : ⟦ ι ⇾ ι ⟧ʸ} {g : ⟦ ι ⇾ Jι ⟧ʸ}
-   → (∀ i → Rι δ (f i) (g i)) → ∀ {n w} → Rι δ n w → Rι δ (f n) (⟦ κ ⟧ᵐ γ g w)
+Rκ : (δ : ℕᴺ) → LR.κ-compatible δ
 Rκ δ γ {f} {g} ζ {n} {w} (e , prf) = trans e₀ e₁ , goal
  where
   e₀ : f n ≡ V (g n) δ
@@ -167,41 +159,34 @@ Rκ δ γ {f} {g} ζ {n} {w} (e , prf) = trans e₀ e₁ , goal
     claim₂ : V (g (V w α)) β ≡ V (g (V w β)) β
     claim₂ = ap (λ x → V (g x) β) claim₁
 
---
--- Ω preserves the logical relation
---
-RΩ : (δ : ℕᴺ)
-   → ∀{n w} → Rι δ n w → Rι δ (δ n) (⟦ Ω ⟧ w)
- -- i.e.  R δ δ ⟦ Ω ⟧
-RΩ δ {n} {w} = Rκ δ ⋆ claim {n} {w}
+RΩ : {Γ : Cxt} → is-generic (Ω {Γ})
+RΩ _ δ {n} {w} = Rκ δ ⋆ claim {n} {w}
  where
   claim : ∀ i → Rι δ (δ i) (⟦ Α ⟧ i)
   claim i = refl , (λ _ _ em → ≡[]-< em ≤refl)
 
 \end{code}
 
-■ Theorem: Every closed term t : ℕᴺ ⇾ ℕ of T has a modulus of
-           uniform continuity given by the term M(tᴶΩ).
+■ Theorem: Every closed term t : ιᶥ ⇾ ι of T has a modulus of
+           uniform continuity given by the term Pr2(tᴶΩ).
 
 \begin{code}
 
-Thm[UC] : (t : T ε (ιᶥ ⇾ ι))
-        → M ⟦ t ᴶ · Ω ⟧ is-a-modulus-of-uniform-continuity-of ⟦ t ⟧
-Thm[UC] t = MoUC-is-extensional claim₀ claim₁
+𝐌 : T ε (ιᶥ ⇾ ι) → T ε (ιᶥ ⇾ ι)
+𝐌 t = Pr2 · (t ᴶ · Ω)
+
+uniform-modulus-correct
+ : (t : T ε (ιᶥ ⇾ ι))
+ → ⟦ 𝐌 t ⟧ is-a-modulus-of-uniform-continuity-of ⟦ t ⟧
+uniform-modulus-correct t = MoUC-is-extensional claim₀ claim₁
  where
   cor : (α : ℕᴺ) → Rι α (⟦ t ⟧ α) ⟦ t ᴶ · Ω ⟧
-  cor α = LR.FTLR t ⋆ (λ {n} {w} → RΩ α {n} {w})
+  cor α = FTLR t ⋆ (λ {n} {w} → RΩ ⋆ α {n} {w})
    where
-    import Framework.Gentzen.LogicalRelation
-      Jι η κ (Rι α) (Rη α) (Rκ α) as LR
+    open LR.Soundness α (Rη α) (Rκ α) using (FTLR)
   claim₀ : ∀ α → ⟦ t ⟧ α ≡ V ⟦ t ᴶ · Ω ⟧ α
   claim₀ α = pr₁ (cor α)
   claim₁ : M ⟦ t ᴶ · Ω ⟧ is-a-modulus-of-uniform-continuity-of V ⟦ t ᴶ · Ω ⟧
   claim₁ {δ} = pr₂ (cor δ)
-
-
-Mᵘᶜ : T ε (ιᶥ ⇾ ι)
-    → ℕᴺ → ℕ
-Mᵘᶜ t = M ⟦ t ᴶ · Ω ⟧
 
 \end{code}

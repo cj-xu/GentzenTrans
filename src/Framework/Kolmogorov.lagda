@@ -14,7 +14,7 @@ References.
 □ Tarmo Uustalu.  Monad translating inductive and coinductive types.
   In: H. Geuvers, F. Wiedijk (Eds.), Types for Proofs and Programs
   (TYPES 2002). Lecture Notes in Computer Science, vol 2646, Springer,
-  2002, pp. 299–315.
+  2003, pp. 299–315.
 
 \begin{code}
 
@@ -54,7 +54,7 @@ f ◇ a = ◇Ap · f · a
 Rec◇ : {Γ : Cxt} {ρ : Ty} → T Γ (ρ ⇾ (J ι ⇾ J (J ρ ⇾ J ρ)) ⇾ ι ⇾ J ρ)
 Rec◇ = Lam (Lam (Rec · (η · ν₁) · Lam (Lam (ν₂ · (η · ν₁) ◇ ν₀))))
 --   Rec◇(a,f,0) := η(a)
--- Rec◇(a,f,n+1) := f(ηn) ◇ Rec◇(a,f,n)
+-- Rec◇(a,f,n+1) := f(η(n)) ◇ Rec◇(a,f,n)
 
 infix 60 _ᴷᵒ
 

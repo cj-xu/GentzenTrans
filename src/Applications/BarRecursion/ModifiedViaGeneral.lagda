@@ -94,9 +94,10 @@ modified bar recursor is T-definable.
 𝐦𝐛𝐫 : T ε (ιᶥ ⇾ ι) → T ε ((ι* ⇾ (ι ⇾ ι) ⇾ ιᶥ) ⇾ ι* ⇾ ι)
 𝐦𝐛𝐫 Y = Θ · Y · (𝐠𝐛𝐫 Y)
 
-thm[MBR] : FunExt
-         → (Y : T ε (ιᶥ ⇾ ι))
-         → MBR ⟦ Y ⟧ ⟦ 𝐦𝐛𝐫 Y ⟧
-thm[MBR] fe Y = Θ-spec ⟦ Y ⟧ ⟦ 𝐒 Y ⟧ ⟦ 𝐠𝐛𝐫 Y ⟧ (pr₂ (Thm[GBR] fe Y))
+mbr-correct : FunExt
+            → (Y : T ε (ιᶥ ⇾ ι))
+            → MBR ⟦ Y ⟧ ⟦ 𝐦𝐛𝐫 Y ⟧
+mbr-correct fe Y
+ = Θ-spec ⟦ Y ⟧ ⟦ 𝐒 Y ⟧ ⟦ 𝐠𝐛𝐫 Y ⟧ (pr₂ (gbr-extraction-correct fe Y))
 
 \end{code}

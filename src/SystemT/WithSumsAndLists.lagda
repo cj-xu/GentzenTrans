@@ -14,9 +14,6 @@ open import Preliminaries
 
 ■ Types, contexts and terms of T
 
-Here we work with the lambda-calculus version of System T, and with de
-Bruijn indices instead of variables.
-
 \begin{code}
 
 infixr 30 _⇾_
@@ -25,9 +22,6 @@ infixr 31 _⊞_
 infixl 20 _₊_
 infixl 20 _·_
 
---
--- finite types
---
 mutual
  data Ty : Set where
   dataᵀ : DataTy → Ty
@@ -42,23 +36,14 @@ pattern ι = dataᵀ nat
 pattern _⊞_ σ τ = dataᵀ (sum σ τ)
 pattern Listᵀ σ = dataᵀ (list σ)
 
---
--- contexts as finite lists of types
---
 data Cxt : Set where
  ε   : Cxt
  _₊_ : Cxt → Ty → Cxt
 
---
--- indices of types/variables in context
---
 data ∥_∈_∥ (σ : Ty) : Cxt → Set where
  zero : {Γ : Cxt} → ∥ σ ∈ (Γ ₊ σ) ∥
  suc  : {τ : Ty} {Γ : Cxt} → ∥ σ ∈ Γ ∥ → ∥ σ ∈ Γ ₊ τ ∥
 
---
--- terms
---
 data T (Γ : Cxt) : Ty → Set where
  Var  : {σ : Ty} → ∥ σ ∈ Γ ∥ → T Γ σ
  Lam  : {σ τ : Ty} → T (Γ ₊ σ) τ → T Γ (σ ⇾ τ)
@@ -138,5 +123,19 @@ _₍_₎ : {Γ : Cxt} {ρ : Ty} → ⟦ Γ ⟧ˣ → ∥ ρ ∈ Γ ∥ → ⟦ �
 
 ν₃ : {Γ : Cxt} {ρ σ₀ σ₁ σ₂ : Ty} → T (Γ ₊ ρ ₊ σ₀ ₊ σ₁ ₊ σ₂) ρ
 ν₃ = Var (suc (suc (suc zero)))
+
+\end{code}
+
+■ Auxiliaries
+
+\begin{code}
+
+Comp : {Γ : Cxt} {τ₀ τ₁ τ₂ : Ty}
+     → T Γ ((τ₁ ⇾ τ₂) ⇾ (τ₀ ⇾ τ₁) ⇾ τ₀ ⇾ τ₂)
+Comp = Lam (Lam (Lam (ν₂ · (ν₁ · ν₀))))
+
+_○_ : {Γ : Cxt} {τ₀ τ₁ τ₂ : Ty}
+    → T Γ (τ₁ ⇾ τ₂) → T Γ (τ₀ ⇾ τ₁) → T Γ (τ₀ ⇾ τ₂)
+t ○ u = Comp · t · u
 
 \end{code}
